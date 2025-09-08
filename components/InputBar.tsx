@@ -140,7 +140,7 @@ const InputBar: React.FC<InputBarProps> = ({
     : "Ρωτήστε κάτι ή αναζητήστε ένα νόμο...";
 
   return (
-    <div className="relative w-full rounded-[28px] border border-brand-border bg-brand-secondary shadow-[0_6px_24px_rgba(0,0,0,0.06)] px-3 sm:px-4 pt-4 pb-[72px] sm:pb-[68px]">
+    <div className="relative w-full rounded-[28px] border border-brand-border bg-brand-secondary shadow-lg px-3 sm:px-4 pt-4 pb-16">
       <div className="relative z-10">
         <textarea
           ref={textareaRef}
@@ -148,67 +148,69 @@ const InputBar: React.FC<InputBarProps> = ({
           onChange={(e) => onValueChange(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder={placeholderText}
-          className="w-full bg-transparent focus:outline-none text-brand-text placeholder-brand-subtle resize-none overflow-y-auto"
-          style={{ minHeight: '44px', maxHeight: '120px' }}
+          className="w-full bg-transparent focus:outline-none text-brand-text placeholder-brand-subtle resize-none overflow-y-auto px-2"
+          style={{ minHeight: '44px', maxHeight: '150px' }}
           rows={1}
           disabled={isLoading}
         />
         {fileName && (
-          <div className="mt-2 text-sm text-brand-subtle flex items-center bg-brand-primary px-3 py-1 rounded-full w-fit">
+          <div className="mt-2 text-sm text-brand-subtle flex items-center bg-input-bg px-3 py-1 rounded-full w-fit ml-2">
             <PaperClipIcon className="w-4 h-4 mr-2" />
             <span>{fileName}</span>
           </div>
         )}
       </div>
 
-      <div className="absolute inset-x-0 bottom-0 flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-3">
-        <label
-          htmlFor="file-upload"
-          className="inline-flex items-center justify-center h-10 w-10 rounded-full bg-brand-primary border border-brand-border text-brand-subtle hover:bg-slate-200 cursor-pointer transition-colors"
-          aria-label="Επισύναψη αρχείου"
-        >
-          <PlusIcon className="w-5 h-5" />
-          <input
-            id="file-upload"
-            type="file"
-            className="hidden"
-            onChange={onFileChange}
-            accept=".txt,.md,.rtf,image/*"
-            disabled={isLoading}
-            ref={fileInputRef}
-          />
-        </label>
-        
-        <button
-          onClick={handleMicClick}
-          disabled={isLoading || !recognitionRef.current}
-          className={`inline-flex items-center justify-center h-10 w-10 rounded-full border border-brand-border text-brand-subtle disabled:opacity-60 transition-colors ${isListening ? 'bg-brand-accent/20 text-brand-accent' : 'bg-brand-primary hover:bg-slate-200'}`}
-          aria-label={isListening ? 'Διακοπή ακρόασης' : 'Έναρξη ακρόασης'}
-        >
-          <MicrophoneIcon className="w-5 h-5" />
-        </button>
-
-        <button
-          onClick={() => onModeChange(mode === 'case' ? 'chat' : 'case')}
-          disabled={isLoading}
-          className={`inline-flex items-center justify-center h-10 w-10 rounded-full border border-brand-border text-brand-subtle disabled:opacity-60 transition-colors ${mode === 'chat' ? 'bg-brand-accent/20 text-brand-accent' : 'bg-brand-primary hover:bg-slate-200'}`}
-          aria-label={`Εναλλαγή σε λειτουργία ${mode === 'case' ? 'Συνομιλίας' : 'Ανάλυσης Υπόθεσης'}`}
-          title={`Εναλλαγή σε λειτουργία ${mode === 'case' ? 'Συνομιλίας' : 'Ανάλυσης Υπόθεσης'}`}
-        >
-          {mode === 'case' ? <ChatBubbleIcon className="w-5 h-5" /> : <ScaleIcon className="w-5 h-5" />}
-        </button>
-
-        <div className="ml-auto relative">
+      <div className="absolute inset-x-0 bottom-0 flex items-center gap-2 px-3 sm:px-4 py-3">
+          <label
+            htmlFor="file-upload"
+            className="group inline-flex items-center justify-center h-10 w-10 rounded-full bg-transparent hover:bg-slate-100 cursor-pointer transition-colors"
+            aria-label="Επισύναψη αρχείου"
+          >
+            <PlusIcon className="w-5 h-5 text-brand-subtle group-hover:text-brand-text" />
+            <input
+              id="file-upload"
+              type="file"
+              className="hidden"
+              onChange={onFileChange}
+              accept=".txt,.md,.rtf,image/*"
+              disabled={isLoading}
+              ref={fileInputRef}
+            />
+          </label>
+          
           <button
+            onClick={() => onModeChange(mode === 'case' ? 'chat' : 'case')}
+            disabled={isLoading}
+            className={`group inline-flex items-center justify-center h-10 w-10 rounded-full bg-transparent hover:bg-slate-100 transition-colors`}
+            aria-label={`Εναλλαγή σε λειτουργία ${mode === 'case' ? 'Συνομιλίας' : 'Ανάλυσης Υπόθεσης'}`}
+            title={`Εναλλαγή σε λειτουργία ${mode === 'case' ? 'Συνομιλίας' : 'Ανάλυσης Υπόθεσης'}`}
+          >
+            {mode === 'case' 
+              ? <ChatBubbleIcon className="w-5 h-5 text-brand-subtle group-hover:text-brand-text" /> 
+              : <ScaleIcon className="w-5 h-5 text-brand-subtle group-hover:text-brand-text" />}
+          </button>
+
+          <button
+            onClick={handleMicClick}
+            disabled={isLoading || !recognitionRef.current}
+            className={`group inline-flex items-center justify-center h-10 w-10 rounded-full bg-transparent disabled:opacity-60 transition-colors ${isListening ? 'bg-brand-accent/10' : 'hover:bg-slate-100'}`}
+            aria-label={isListening ? 'Διακοπή ακρόασης' : 'Έναρξη ακρόασης'}
+          >
+            <MicrophoneIcon className={`w-5 h-5 transition-colors ${isListening ? 'text-brand-accent' : 'text-brand-subtle group-hover:text-brand-text'}`} />
+          </button>
+        
+        <div className="ml-auto">
+            <button
             onClick={onSubmit}
             disabled={isLoading || !value.trim()}
-            className="inline-flex items-center justify-center rounded-full h-11 w-11 bg-brand-text text-white hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-md transition-colors"
-            style={{ transform: 'translateY(-2px)' }}
+            className="inline-flex items-center justify-center rounded-full h-11 w-11 bg-slate-400 text-white hover:bg-slate-500 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-slate-300 shadow-sm transition-colors"
             aria-label="Υποβολή"
-          >
+            >
             <ArrowUpIcon className="w-6 h-6" />
-          </button>
+            </button>
         </div>
+
       </div>
     </div>
   );

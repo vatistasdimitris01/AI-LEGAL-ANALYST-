@@ -2,6 +2,7 @@ const CACHE_NAME = 'ai-legal-analyst-v1';
 const urlsToCacheOnInstall = [
   '/',
   '/index.html',
+  '/manifest.json',
   'https://i.ibb.co/LXX1fPQR/Generated-Image-September-08-2025-9-16-PM.png',
   'https://cdn.tailwindcss.com',
   'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js',

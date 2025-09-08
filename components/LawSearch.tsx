@@ -66,7 +66,7 @@ const LawLibrary: React.FC = () => {
         <div className="w-full space-y-8 animate-fade-in">
             <div className="text-center pt-4">
                 <BookOpenIcon className="w-12 h-12 mx-auto text-brand-accent mb-4" />
-                <h2 className="text-3xl font-bold mb-2 text-brand-dark">Νομική Βιβλιοθήκη</h2>
+                <h2 className="text-3xl font-bold mb-2 text-brand-text">Νομική Βιβλιοθήκη</h2>
                 <p className="text-brand-subtle max-w-xl mx-auto">
                     Εξερευνήστε βασικά άρθρα ή αναζητήστε συγκεκριμένους νόμους και κώδικες.
                 </p>

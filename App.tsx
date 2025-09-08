@@ -4,7 +4,7 @@ import { type AnalysisResult, type ChatMessage } from './types';
 import InputBar from './components/InputBar';
 import ResultsDisplay from './components/ResultsDisplay';
 import CountryModal from './components/CountryModal';
-import { ScaleIcon, SparklesIcon, DocumentTextIcon, BookOpenIcon } from './components/icons/Icons';
+import { ScaleIcon, SparklesIcon, DocumentTextIcon, BookOpenIcon, LogoIcon, MenuIcon, XIcon } from './components/icons/Icons';
 import LoadingSpinner from './components/LoadingSpinner';
 import LawLibrary from './components/LawSearch';
 import ChatDisplay from './components/ChatDisplay';
@@ -26,6 +26,7 @@ const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<View>('analysis');
   const [inputMode, setInputMode] = useState<InputMode>('case');
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
+  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const bottomOfChatRef = useRef<HTMLDivElement>(null);
@@ -221,6 +222,30 @@ const App: React.FC = () => {
       setError(null);
   }
   
+  const handleSetView = (view: View) => {
+    setCurrentView(view);
+    setIsSidebarOpen(false);
+  }
+
+  const NavLinks: React.FC<{ isMobile?: boolean }> = ({ isMobile }) => (
+    <nav className={`flex items-center ${isMobile ? 'flex-col space-y-4 pt-8' : 'space-x-1 sm:space-x-2'}`}>
+      <button 
+          onClick={() => handleSetView('analysis')}
+          className={`px-3 sm:px-4 py-2 text-sm sm:text-base font-semibold rounded-lg transition-colors flex items-center gap-2 w-full ${currentView === 'analysis' ? 'bg-brand-accent text-white' : 'text-brand-subtle hover:bg-slate-100'}`}
+      >
+          <ScaleIcon className="w-5 h-5" />
+          Ανάλυση
+      </button>
+      <button 
+          onClick={() => handleSetView('library')}
+          className={`px-3 sm:px-4 py-2 text-sm sm:text-base font-semibold rounded-lg transition-colors flex items-center gap-2 w-full ${currentView === 'library' ? 'bg-brand-accent text-white' : 'text-brand-subtle hover:bg-slate-100'}`}
+      >
+          <BookOpenIcon className="w-5 h-5"/>
+          Βιβλιοθήκη
+      </button>
+    </nav>
+  );
+
   const isProcessingUrl = isFetchingUrl || isFormattingCase;
   const isInputLoading = isLoading || isProcessingUrl || isProcessingImage;
   const showWelcome = !isLoading && !analysis && chatHistory.length === 0;
@@ -228,32 +253,42 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-brand-primary text-brand-text font-sans">
-      <header className="w-full p-4 border-b border-brand-border bg-brand-secondary/80 backdrop-blur-sm shadow-sm sticky top-0 z-20">
+      <header className="w-full p-4 border-b border-brand-border bg-brand-secondary/80 backdrop-blur-sm sticky top-0 z-20">
         <div className="container mx-auto flex items-center justify-between">
             <div className="flex items-center">
-                 <ScaleIcon className="h-8 w-8 text-brand-accent mr-3" />
-                <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-brand-text">
-                  AI Legal Analyst
-                </h1>
+                <button onClick={() => setIsSidebarOpen(true)} className="p-2 md:hidden text-brand-subtle hover:text-brand-text mr-2 -ml-2">
+                    <MenuIcon className="w-6 h-6" />
+                </button>
+                <div className="flex items-center">
+                    <LogoIcon className="h-8 w-8 text-brand-text mr-3" />
+                    <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-brand-text">
+                      AI Legal Analyst
+                    </h1>
+                </div>
             </div>
-            <nav className="flex items-center space-x-1 sm:space-x-2">
-                <button 
-                    onClick={() => setCurrentView('analysis')}
-                    className={`px-3 sm:px-4 py-2 text-sm sm:text-base font-semibold rounded-lg transition-colors flex items-center gap-2 ${currentView === 'analysis' ? 'bg-brand-accent text-white' : 'text-brand-subtle hover:bg-slate-100'}`}
-                >
-                    <ScaleIcon className="w-5 h-5" />
-                    Ανάλυση
-                </button>
-                <button 
-                    onClick={() => setCurrentView('library')}
-                    className={`px-3 sm:px-4 py-2 text-sm sm:text-base font-semibold rounded-lg transition-colors flex items-center gap-2 ${currentView === 'library' ? 'bg-brand-accent text-white' : 'text-brand-subtle hover:bg-slate-100'}`}
-                >
-                    <BookOpenIcon className="w-5 h-5"/>
-                    Βιβλιοθήκη
-                </button>
-            </nav>
+            <div className="hidden md:block">
+              <NavLinks />
+            </div>
         </div>
       </header>
+
+      {isSidebarOpen && (
+        <div className="fixed inset-0 z-40 md:hidden">
+            <div className="absolute inset-0 bg-black/30" onClick={() => setIsSidebarOpen(false)}></div>
+            <div className="relative z-10 bg-brand-secondary w-72 h-full shadow-xl p-4">
+                <div className="flex justify-between items-center mb-4">
+                    <div className="flex items-center">
+                        <LogoIcon className="h-7 w-7 text-brand-text mr-2" />
+                        <h2 className="text-lg font-bold">AI Legal Analyst</h2>
+                    </div>
+                    <button onClick={() => setIsSidebarOpen(false)} className="p-2 text-brand-subtle hover:text-brand-text">
+                        <XIcon className="w-6 h-6" />
+                    </button>
+                </div>
+                <NavLinks isMobile />
+            </div>
+        </div>
+      )}
 
       <main className="flex-grow container mx-auto p-4 md:p-6 lg:p-8 w-full max-w-4xl relative">
         {currentView === 'analysis' && (
@@ -266,11 +301,11 @@ const App: React.FC = () => {
               </div>
             )}
             {showWelcome && (
-              <div className="text-center pt-8 space-y-6">
-                <SparklesIcon className="h-16 w-16 mx-auto text-brand-accent/50 mb-4" />
+              <div className="text-center pt-16 space-y-4">
+                <SparklesIcon className="h-12 w-12 mx-auto text-brand-accent mb-4" />
                 <h2 className="text-3xl font-bold mb-2 text-brand-text">Ξεκινήστε την Ανάλυση</h2>
                 <p className="text-brand-subtle max-w-xl mx-auto">
-                Επιλέξτε τη λειτουργία "Ανάλυση Υπόθεσης" ή "Συνομιλία" από την μπάρα εισαγωγής παρακάτω.
+                  Επιλέξτε τη λειτουργία "Ανάλυση Υπόθεσης" ή "Συνομιλία" από την μπάρα εισαγωγής παρακάτω.
                 </p>
               </div>
             )}
