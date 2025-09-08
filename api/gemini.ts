@@ -53,7 +53,7 @@ const analysisSchema = {
 async function analyzeCase(payload: { caseDetails: string; country: string }): Promise<AnalysisResult> {
   const { caseDetails, country } = payload;
   const model = "gemini-2.5-flash";
-  const systemInstruction = `Είσαι μια AI με εξειδίρευση στη νομική ανάλυση. Ο ρόλος σου είναι να εξετάσεις τις λεπτομέρειες της υπόθεσης που παρέχονται και να εκτελέσεις μια διεξοδική ανάλυση βασισμένη αυστηρά στους νόμους και τη δικαιοδοσία της χώρας: ${country}.
+  const systemInstruction = `Είσαι μια AI με εξειδίκευση στη νομική ανάλυση. Ο ρόλος σου είναι να εξετάσεις τις λεπτομέρειες της υπόθεσης που παρέχονται και να εκτελέσεις μια διεξοδική ανάλυση βασισμένη αυστηρά στους νόμους και τη δικαιοδοσία της χώρας: ${country}.
   
   Οδηγίες:
   1.  Η ανάλυση και η απάντησή σου πρέπει να είναι εξ ολοκλήρου στα Ελληνικά.
@@ -104,13 +104,23 @@ async function searchLaws(payload: { query: string }): Promise<string> {
 async function chatWithAI(payload: { query: string }): Promise<string> {
     const { query } = payload;
     const model = "gemini-2.5-flash";
-    const prompt = `Είσαι ένας εξυπηρετικός νομικός βοηθός AI. Απάντησε στην ερώτηση του χρήστη.
-    - Χρησιμοποίησε την Αναζήτηση Google αν χρειάζεσαι πρόσφατες ή συγκεκριμένες πληροφορίες.
-    - Η απάντησή σου πρέπει να είναι αποκλειστικά στα Ελληνικά.
-    - Χρησιμοποίησε Markdown για τη μορφοποίηση.
-    
-    Ερώτηση χρήστη: "${query}"`;
-    const response = await ai.models.generateContent({ model, contents: prompt, config: { tools: [{ googleSearch: {} }] } });
+    const systemInstruction = `Είσαι ένας εξυπηρετικός νομικός βοηθός AI.
+- Απάντησε στις ερωτήσεις του χρήστη.
+- Χρησιμοποίησε την Αναζήτηση Google αν χρειάζεσαι πρόσφατες ή συγκεκριμένες πληροφορίες.
+- Η απάντησή σου πρέπει να είναι αποκλειστικά στα Ελληνικά.
+- Χρησιμοποίησε Markdown για τη μορφοποίηση.
+- Αν σε ρωτήσουν ποιος σε δημιούργησε, ποιος είναι ο δημιουργός σου, ή ποιος σε έφτιαξε, απάντησε ότι σε δημιούργησε ο Δημήτρης Βατίστας και δώσε τους παρακάτω συνδέσμους για τα social media του:
+  - Instagram: https://www.instagram.com/vatistasdimitris/
+  - X (Twitter): https://x.com/vatistasdim`;
+
+    const response = await ai.models.generateContent({
+        model,
+        contents: query,
+        config: {
+            systemInstruction,
+            tools: [{ googleSearch: {} }],
+        },
+    });
     return response.text;
 }
 
