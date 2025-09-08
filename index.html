@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="el">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/png" href="https://i.ibb.co/LXX1fPQR/Generated-Image-September-08-2025-9-16-PM.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- PWA Meta Tags -->
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#f8fafc" />
+    <link rel="apple-touch-icon" href="https://i.ibb.co/LXX1fPQR/Generated-Image-September-08-2025-9-16-PM.png" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="AI Legal Analyst" />
+
+    <title>AI Legal Analyst</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              'brand-primary': '#f8fafc',    // slate-50 (Background)
+              'brand-secondary': '#ffffff',   // white (Cards)
+              'brand-accent': '#0ea5e9',     // sky-500 (Active buttons, links)
+              'brand-accent-dark': '#0284c7', // sky-600 (Active button hover)
+              'brand-text': '#0f172a',       // slate-900 (Main text)
+              'brand-subtle': '#64748b',    // slate-500 (Secondary text)
+              'brand-border': '#e2e8f0',     // slate-200 (Borders)
+              'brand-dark': '#1e293b', // slate-800 - Search button
+              'brand-dark-hover': '#334155', // slate-700
+              'user-bubble': '#e0f2fe', // sky-100
+              'ai-bubble': '#f1f5f9', // slate-100
+            },
+            animation: {
+              'pulse-fast': 'pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+      /* Custom styles for Law Library and Chat Display */
+      .law-library-results .prose h2 {
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+        color: #475569; /* slate-600 */
+      }
+      .law-library-results .prose h3 {
+        font-size: 1.125rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        color: #0f172a; /* slate-900 */
+      }
+      .law-library-results .prose p {
+        margin-top: 0.5rem;
+        line-height: 1.6;
+      }
+      .law-library-results .prose a {
+        color: #0ea5e9; /* sky-500 */
+        font-weight: 600;
+      }
+      .law-library-results .prose a:hover {
+        text-decoration: underline;
+      }
+      .law-library-results .prose strong {
+        color: #334155; /* slate-700 */
+      }
+       .prose-chat p {
+        margin-top: 0;
+        margin-bottom: 0.75rem;
+      }
+       .prose-chat p:last-child {
+        margin-bottom: 0;
+      }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" integrity="sha512-BNaRQnYJYiPSqHHDb58B0yaPfCu+Wgds8Gp/gU33kqBtgNS4tSPHuGibyoVBL5gI9kLmbG4dtydrkKMzH2k7sA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" integrity="sha512-qZvrmS2ekKPF2mSznTQsxqPgnpkI4DNTlrdUmTzrDgektczlKNRRhy5X5AAOnx5S09ydFYWWNSfcEqDTTHgtNA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@2.4.0/dist/purify.min.js"></script>
+  <script type="importmap">
+{
+  "imports": {
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.17.0",
+    "react/": "https://aistudiocdn.com/react@^19.1.1/",
+    "react": "https://aistudiocdn.com/react@^19.1.1",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.1.1/"
+  }
+}
+</script>
+</head>
+  <body class="bg-brand-primary text-brand-text">
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js').then(registration => {
+            console.log('SW registered: ', registration);
+          }).catch(registrationError => {
+            console.log('SW registration failed: ', registrationError);
+          });
+        });
+      }
+    </script>
+  </body>
+</html>

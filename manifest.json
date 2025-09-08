@@ -1,0 +1,21 @@
+{
+  "name": "AI Legal Analyst",
+  "short_name": "Legal AI",
+  "description": "An AI-powered tool that analyzes case details from text or file uploads. It suggests relevant legal articles for both the plaintiff and defendant, provides a case summary, and allows you to save the complete analysis to a file.",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#f8fafc",
+  "theme_color": "#f8fafc",
+  "icons": [
+    {
+      "src": "https://i.ibb.co/LXX1fPQR/Generated-Image-September-08-2025-9-16-PM.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://i.ibb.co/LXX1fPQR/Generated-Image-September-08-2025-9-16-PM.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
