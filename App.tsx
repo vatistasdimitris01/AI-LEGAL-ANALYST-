@@ -375,7 +375,7 @@ const App: React.FC = () => {
               )}
               <InputBar
                   value={inputText}
-                  onValue-change={setInputText}
+                  onValueChange={setInputText}
                   onFileChange={handleFileChange}
                   onSubmit={handleTriggerSubmit}
                   isLoading={isInputLoading}
