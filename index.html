@@ -13,29 +13,58 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="AI Legal Analyst" />
-
+    <script>
+      // Avoids FOUC (Flash of Unstyled Content) by applying the theme before the page renders
+      if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    </script>
     <title>AI Legal Analyst</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       tailwind.config = {
+        darkMode: 'class',
         theme: {
           extend: {
             colors: {
-              'brand-primary': '#ffffff',    // white (Background)
-              'brand-secondary': '#ffffff',   // white (Cards)
-              'brand-accent': '#0ea5e9',     // sky-500 (Active buttons, links)
-              'brand-accent-dark': '#0284c7', // sky-600 (Active button hover)
-              'brand-text': '#0f172a',       // slate-900 (Main text)
-              'brand-subtle': '#64748b',    // slate-500 (Secondary text)
-              'brand-border': '#e2e8f0',     // slate-200 (Borders)
-              'brand-dark': '#1e293b', // slate-800 - Search button
-              'brand-dark-hover': '#334155', // slate-700
-              'user-bubble': '#e0f2fe', // sky-100
-              'ai-bubble': '#f1f5f9', // slate-100
-              'input-bg': '#f8fafc', // slate-50
+              // Light Mode
+              'brand-primary': '#f8fafc',      // slate-50 (Background)
+              'brand-secondary': '#ffffff',     // white (Cards)
+              'brand-accent': '#0ea5e9',       // sky-500 (Active buttons, links)
+              'brand-accent-dark': '#0284c7',   // sky-600 (Active button hover)
+              'brand-text-primary': '#0f172a', // slate-900 (Main text)
+              'brand-text-secondary': '#64748b',// slate-500 (Secondary text)
+              'brand-border': '#e2e8f0',       // slate-200 (Borders)
+              'brand-dark': '#1e293b',         // slate-800 - Search button
+              'brand-dark-hover': '#334155',   // slate-700
+              'user-bubble': '#e0f2fe',        // sky-100
+              'ai-bubble': '#f1f5f9',          // slate-100
+              'input-bg': '#f1f5f9',         // slate-100
+              
+              // Dark Mode
+              'dark-primary': '#0f172a',        // slate-900 (Background)
+              'dark-secondary': '#1e293b',       // slate-800 (Cards)
+              'dark-accent': '#38bdf8',         // sky-400
+              'dark-accent-dark': '#0ea5e9',     // sky-500
+              'dark-text-primary': '#f1f5f9',         // slate-100
+              'dark-text-secondary': '#94a3b8',      // slate-400
+              'dark-border': '#334155',         // slate-700
+              'dark-user-bubble': '#0c4a6e',        // sky-900
+              'dark-ai-bubble': '#334155',          // slate-700
             },
             animation: {
               'pulse-fast': 'pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+              'fade-in': 'fadeIn 0.5s ease-in-out',
+              'slide-up': 'slideUp 0.5s ease-in-out',
+            },
+            keyframes: {
+              fadeIn: { '0%': { opacity: 0 }, '100%': { opacity: 1 } },
+              slideUp: {
+                '0%': { transform: 'translateY(10px)', opacity: 0 },
+                '100%': { transform: 'translateY(0)', opacity: 1 },
+              }
             }
           }
         }
@@ -49,33 +78,44 @@
         margin-bottom: 0.25rem;
         color: #475569; /* slate-600 */
       }
+      .dark .law-library-results .prose h2 { color: #94a3b8; }
+      
       .law-library-results .prose h3 {
         font-size: 1.125rem;
         font-weight: 700;
         margin-bottom: 1rem;
         color: #0f172a; /* slate-900 */
       }
-      .law-library-results .prose p {
-        margin-top: 0.5rem;
-        line-height: 1.6;
-      }
-      .law-library-results .prose a {
-        color: #0ea5e9; /* sky-500 */
-        font-weight: 600;
-      }
-      .law-library-results .prose a:hover {
-        text-decoration: underline;
-      }
-      .law-library-results .prose strong {
-        color: #334155; /* slate-700 */
-      }
-       .prose-chat p {
-        margin-top: 0;
-        margin-bottom: 0.75rem;
-      }
-       .prose-chat p:last-child {
-        margin-bottom: 0;
-      }
+      .dark .law-library-results .prose h3 { color: #f1f5f9; }
+
+      .law-library-results .prose p,
+      .law-library-results .prose li { margin-top: 0.5rem; line-height: 1.6; }
+      .dark .law-library-results .prose p,
+      .dark .law-library-results .prose li { color: #cbd5e1; } /* slate-300 */
+
+      .law-library-results .prose a { color: #0ea5e9; font-weight: 600; }
+      .dark .law-library-results .prose a { color: #38bdf8; }
+      .law-library-results .prose a:hover { text-decoration: underline; }
+
+      .law-library-results .prose strong { color: #334155; }
+      .dark .law-library-results .prose strong { color: #e2e8f0; } /* slate-200 */
+
+       .prose-chat p { margin-top: 0; margin-bottom: 0.75rem; }
+       .prose-chat p:last-child { margin-bottom: 0; }
+       .prose-chat strong { color: #0f172a; }
+       .dark .prose-chat strong { color: #f1f5f9; }
+       .prose-chat a { color: #0ea5e9; }
+       .dark .prose-chat a { color: #38bdf8; }
+
+      /* Custom Scrollbar */
+      ::-webkit-scrollbar { width: 8px; }
+      ::-webkit-scrollbar-track { background: #e2e8f0; }
+      .dark ::-webkit-scrollbar-track { background: #1e293b; }
+      ::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 4px; }
+      .dark ::-webkit-scrollbar-thumb { background: #475569; }
+      ::-webkit-scrollbar-thumb:hover { background: #64748b; }
+      .dark ::-webkit-scrollbar-thumb:hover { background: #64748b; }
+
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -92,7 +132,7 @@
 }
 </script>
 </head>
-  <body class="bg-brand-primary text-brand-text">
+  <body class="bg-brand-primary text-brand-text-primary dark:bg-dark-primary dark:text-dark-text-primary transition-colors duration-300">
     <div id="root"></div>
     <script type="module" src="/index.tsx"></script>
     <script>

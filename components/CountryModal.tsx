@@ -13,7 +13,6 @@ const CountryModal: React.FC<CountryModalProps> = ({ isOpen, onClose, onConfirm,
 
   useEffect(() => {
     if (isOpen) {
-      // Reset country input when modal opens
       setCountry('');
     }
   }, [isOpen]);
@@ -44,18 +43,20 @@ const CountryModal: React.FC<CountryModalProps> = ({ isOpen, onClose, onConfirm,
       role="dialog"
     >
       <div
-        className="bg-brand-secondary rounded-xl shadow-2xl p-6 md:p-8 w-full max-w-md m-4"
+        className="bg-brand-secondary dark:bg-dark-secondary rounded-xl shadow-2xl p-6 md:p-8 w-full max-w-md m-4 animate-slide-up"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center mb-4">
-            <ScaleIcon className="w-6 h-6 mr-3 text-brand-accent"/>
-            <h2 className="text-xl font-bold text-brand-text">Προσδιορίστε Δικαιοδοσία</h2>
+            <div className="p-2 bg-brand-accent/10 rounded-full mr-3">
+                <ScaleIcon className="w-6 h-6 text-brand-accent"/>
+            </div>
+            <h2 className="text-xl font-bold text-brand-text-primary dark:text-dark-text-primary">Προσδιορίστε Δικαιοδοσία</h2>
         </div>
-        <p className="text-brand-subtle mb-6">
+        <p className="text-brand-text-secondary dark:text-dark-text-secondary mb-6">
           Για να παρέχουμε ακριβή ανάλυση, παρακαλώ προσδιορίστε τη χώρα της οποίας οι νόμοι ισχύουν για αυτή την υπόθεση.
         </p>
         
-        <label htmlFor="country-input" className="block text-sm font-medium text-brand-subtle mb-2">
+        <label htmlFor="country-input" className="block text-sm font-medium text-brand-text-secondary dark:text-dark-text-secondary mb-2">
             Χώρα
         </label>
         <input
@@ -65,7 +66,7 @@ const CountryModal: React.FC<CountryModalProps> = ({ isOpen, onClose, onConfirm,
           onChange={(e) => setCountry(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder="π.χ., Ελλάδα, Κύπρος, Γερμανία"
-          className="w-full px-4 py-2 bg-brand-primary border border-brand-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-accent"
+          className="w-full px-4 py-2 bg-brand-primary dark:bg-dark-primary border border-brand-border dark:border-dark-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-accent dark:focus:ring-dark-accent"
           autoFocus
         />
         
@@ -73,14 +74,14 @@ const CountryModal: React.FC<CountryModalProps> = ({ isOpen, onClose, onConfirm,
           <button
             onClick={onClose}
             disabled={isLoading}
-            className="px-4 py-2 bg-slate-100 text-brand-text font-semibold rounded-lg hover:bg-slate-200 transition-colors duration-200 disabled:opacity-50"
+            className="px-4 py-2 bg-slate-100 dark:bg-slate-700 text-brand-text-primary dark:text-dark-text-primary font-semibold rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors duration-200 disabled:opacity-50"
           >
             Άκυρο
           </button>
           <button
             onClick={handleConfirm}
             disabled={isLoading || !country.trim()}
-            className="px-4 py-2 bg-brand-accent text-white font-semibold rounded-lg hover:bg-sky-400 transition-colors duration-200 disabled:bg-slate-300 disabled:cursor-not-allowed"
+            className="px-4 py-2 bg-brand-accent text-white font-semibold rounded-lg hover:bg-brand-accent-dark transition-colors duration-200 disabled:bg-slate-300 dark:disabled:bg-slate-600 disabled:cursor-not-allowed"
           >
             {isLoading ? 'Γίνεται ανάλυση...' : 'Ανάλυση Υπόθεσης'}
           </button>

@@ -4,7 +4,7 @@ import { type AnalysisResult, type ChatMessage } from './types';
 import InputBar from './components/InputBar';
 import ResultsDisplay from './components/ResultsDisplay';
 import CountryModal from './components/CountryModal';
-import { ScaleIcon, SparklesIcon, DocumentTextIcon, BookOpenIcon, LogoIcon, MenuIcon, XIcon } from './components/icons/Icons';
+import { ScaleIcon, SparklesIcon, DocumentTextIcon, BookOpenIcon, LogoIcon, MenuIcon, XIcon, SunIcon, MoonIcon } from './components/icons/Icons';
 import LoadingSpinner from './components/LoadingSpinner';
 import LawLibrary from './components/LawSearch';
 import ChatDisplay from './components/ChatDisplay';
@@ -27,9 +27,31 @@ const App: React.FC = () => {
   const [inputMode, setInputMode] = useState<InputMode>('case');
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
+  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
+    if (typeof window !== 'undefined' && localStorage.getItem('theme')) {
+        return localStorage.getItem('theme') as 'light' | 'dark';
+    }
+    if (typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        return 'dark';
+    }
+    return 'light';
+  });
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const bottomOfChatRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (theme === 'dark') {
+        document.documentElement.classList.add('dark');
+    } else {
+        document.documentElement.classList.remove('dark');
+    }
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+      setTheme(prevTheme => prevTheme === 'light' ? 'dark' : 'light');
+  };
 
   useEffect(() => {
     const urlRegex = /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/;
@@ -228,17 +250,17 @@ const App: React.FC = () => {
   }
 
   const NavLinks: React.FC<{ isMobile?: boolean }> = ({ isMobile }) => (
-    <nav className={`flex items-center ${isMobile ? 'flex-col space-y-4 pt-8' : 'space-x-1 sm:space-x-2'}`}>
+    <nav className={`flex items-center ${isMobile ? 'flex-col space-y-2 pt-6' : 'space-x-1'}`}>
       <button 
           onClick={() => handleSetView('analysis')}
-          className={`px-3 sm:px-4 py-2 text-sm sm:text-base font-semibold rounded-lg transition-colors flex items-center gap-2 w-full ${currentView === 'analysis' ? 'bg-brand-accent text-white' : 'text-brand-subtle hover:bg-slate-100'}`}
+          className={`px-3 sm:px-4 py-2 text-sm sm:text-base font-semibold rounded-lg transition-colors flex items-center gap-2 w-full ${currentView === 'analysis' ? 'bg-brand-accent text-white' : 'text-brand-text-secondary hover:bg-slate-100 dark:hover:bg-slate-700 dark:text-dark-text-secondary'}`}
       >
           <ScaleIcon className="w-5 h-5" />
           Ανάλυση
       </button>
       <button 
           onClick={() => handleSetView('library')}
-          className={`px-3 sm:px-4 py-2 text-sm sm:text-base font-semibold rounded-lg transition-colors flex items-center gap-2 w-full ${currentView === 'library' ? 'bg-brand-accent text-white' : 'text-brand-subtle hover:bg-slate-100'}`}
+          className={`px-3 sm:px-4 py-2 text-sm sm:text-base font-semibold rounded-lg transition-colors flex items-center gap-2 w-full ${currentView === 'library' ? 'bg-brand-accent text-white' : 'text-brand-text-secondary hover:bg-slate-100 dark:hover:bg-slate-700 dark:text-dark-text-secondary'}`}
       >
           <BookOpenIcon className="w-5 h-5"/>
           Βιβλιοθήκη
@@ -252,16 +274,16 @@ const App: React.FC = () => {
   const showInputBar = !analysis;
 
   return (
-    <div className="min-h-screen flex flex-col bg-brand-primary text-brand-text font-sans">
-      <header className="w-full p-4 border-b border-brand-border bg-brand-secondary/80 backdrop-blur-sm sticky top-0 z-20">
+    <div className="min-h-screen flex flex-col font-sans">
+      <header className="w-full p-4 border-b border-brand-border dark:border-dark-border bg-brand-secondary/80 dark:bg-dark-secondary/80 backdrop-blur-sm sticky top-0 z-20">
         <div className="container mx-auto flex items-center justify-between">
-            <div className="flex items-center">
-                <button onClick={() => setIsSidebarOpen(true)} className="p-2 md:hidden text-brand-subtle hover:text-brand-text mr-2 -ml-2">
+            <div className="flex items-center gap-2">
+                <button onClick={() => setIsSidebarOpen(true)} className="p-2 md:hidden text-brand-text-secondary hover:text-brand-text-primary dark:text-dark-text-secondary dark:hover:text-dark-text-primary -ml-2">
                     <MenuIcon className="w-6 h-6" />
                 </button>
                 <div className="flex items-center">
-                    <LogoIcon className="h-8 w-8 text-brand-text mr-3" />
-                    <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-brand-text">
+                    <LogoIcon className="h-8 w-8 text-brand-text-primary dark:text-dark-text-primary mr-3" />
+                    <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-brand-text-primary dark:text-dark-text-primary">
                       AI Legal Analyst
                     </h1>
                 </div>
@@ -269,19 +291,28 @@ const App: React.FC = () => {
             <div className="hidden md:block">
               <NavLinks />
             </div>
+            <div className="flex items-center">
+               <button 
+                  onClick={toggleTheme} 
+                  className="p-2 rounded-full text-brand-text-secondary hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                  aria-label="Toggle theme"
+                >
+                  {theme === 'light' ? <MoonIcon className="w-5 h-5" /> : <SunIcon className="w-5 h-5" />}
+              </button>
+            </div>
         </div>
       </header>
 
       {isSidebarOpen && (
         <div className="fixed inset-0 z-40 md:hidden">
-            <div className="absolute inset-0 bg-black/30" onClick={() => setIsSidebarOpen(false)}></div>
-            <div className="relative z-10 bg-brand-secondary w-72 h-full shadow-xl p-4">
+            <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setIsSidebarOpen(false)}></div>
+            <div className="relative z-10 bg-brand-secondary dark:bg-dark-secondary w-72 h-full shadow-xl p-4 animate-fade-in">
                 <div className="flex justify-between items-center mb-4">
                     <div className="flex items-center">
-                        <LogoIcon className="h-7 w-7 text-brand-text mr-2" />
+                        <LogoIcon className="h-7 w-7 text-brand-text-primary dark:text-dark-text-primary mr-2" />
                         <h2 className="text-lg font-bold">AI Legal Analyst</h2>
                     </div>
-                    <button onClick={() => setIsSidebarOpen(false)} className="p-2 text-brand-subtle hover:text-brand-text">
+                    <button onClick={() => setIsSidebarOpen(false)} className="p-2 text-brand-text-secondary hover:text-brand-text-primary dark:text-dark-text-secondary dark:hover:text-dark-text-primary">
                         <XIcon className="w-6 h-6" />
                     </button>
                 </div>
@@ -295,16 +326,18 @@ const App: React.FC = () => {
           <div className={showInputBar ? 'pb-40' : ''}>
             {isLoading && chatHistory.length === 0 && <LoadingSpinner />}
             {error && !isLoading && (
-              <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg relative text-center mb-4" role="alert">
+              <div className="bg-red-100 dark:bg-red-900/20 border border-red-400 dark:border-red-500/30 text-red-700 dark:text-red-300 px-4 py-3 rounded-lg relative text-center mb-4 animate-fade-in" role="alert">
                 <strong className="font-bold">Σφάλμα: </strong>
                 <span className="block sm:inline">{error}</span>
               </div>
             )}
             {showWelcome && (
-              <div className="text-center pt-16 space-y-4">
-                <SparklesIcon className="h-12 w-12 mx-auto text-brand-accent mb-4" />
-                <h2 className="text-3xl font-bold mb-2 text-brand-text">Ξεκινήστε την Ανάλυση</h2>
-                <p className="text-brand-subtle max-w-xl mx-auto">
+              <div className="text-center pt-16 space-y-4 animate-slide-up">
+                <div className="inline-block p-4 bg-brand-accent/10 rounded-full">
+                   <SparklesIcon className="h-12 w-12 mx-auto text-brand-accent" />
+                </div>
+                <h2 className="text-3xl font-bold mb-2 text-brand-text-primary dark:text-dark-text-primary">Ξεκινήστε την Ανάλυση</h2>
+                <p className="text-brand-text-secondary dark:text-dark-text-secondary max-w-xl mx-auto">
                   Επιλέξτε τη λειτουργία "Ανάλυση Υπόθεσης" ή "Συνομιλία" από την μπάρα εισαγωγής παρακάτω.
                 </p>
               </div>
@@ -323,26 +356,26 @@ const App: React.FC = () => {
          <div className="fixed bottom-0 left-0 right-0 p-4 flex justify-center pointer-events-none">
             <div className="w-full max-w-4xl pointer-events-auto flex flex-col items-center">
               {isUrlDetected && !isInputLoading && inputMode === 'case' && (
-                <button onClick={handleFetchUrlContent} className="bg-brand-accent text-white font-semibold py-2 px-5 rounded-full mb-2 shadow-lg hover:bg-brand-accent-dark transition-colors flex items-center">
+                <button onClick={handleFetchUrlContent} className="bg-brand-accent text-white font-semibold py-2 px-5 rounded-full mb-2 shadow-lg hover:bg-brand-accent-dark transition-all flex items-center animate-fade-in">
                   <DocumentTextIcon className="w-5 h-5 mr-2" />
                   Εξαγωγή Περιεχομένου από URL
                 </button>
               )}
               {isProcessingUrl && (
-                  <div className="bg-slate-200 text-brand-subtle font-semibold py-2 px-5 rounded-full mb-2 shadow-lg flex items-center">
-                      <div className="w-4 h-4 border-2 border-slate-400 border-t-transparent rounded-full animate-spin mr-2"></div>
+                  <div className="bg-slate-200 dark:bg-slate-700 text-brand-text-secondary dark:text-dark-text-secondary font-semibold py-2 px-5 rounded-full mb-2 shadow-lg flex items-center animate-fade-in">
+                      <div className="w-4 h-4 border-2 border-slate-400 dark:border-slate-500 border-t-transparent rounded-full animate-spin mr-2"></div>
                       {isFetchingUrl ? 'Ανάκτηση περιεχομένου...' : 'Διαμόρφωση υπόθεσης...'}
                   </div>
               )}
               {isProcessingImage && (
-                  <div className="bg-slate-200 text-brand-subtle font-semibold py-2 px-5 rounded-full mb-2 shadow-lg flex items-center">
-                      <div className="w-4 h-4 border-2 border-slate-400 border-t-transparent rounded-full animate-spin mr-2"></div>
+                  <div className="bg-slate-200 dark:bg-slate-700 text-brand-text-secondary dark:text-dark-text-secondary font-semibold py-2 px-5 rounded-full mb-2 shadow-lg flex items-center animate-fade-in">
+                      <div className="w-4 h-4 border-2 border-slate-400 dark:border-slate-500 border-t-transparent rounded-full animate-spin mr-2"></div>
                       Επεξεργασία εικόνας...
                   </div>
               )}
               <InputBar
                   value={inputText}
-                  onValueChange={setInputText}
+                  onValue-change={setInputText}
                   onFileChange={handleFileChange}
                   onSubmit={handleTriggerSubmit}
                   isLoading={isInputLoading}
