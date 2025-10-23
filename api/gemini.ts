@@ -1,5 +1,5 @@
-import { GoogleGenAI, Type } from "@google/genai";
-import { type AnalysisResult } from '../types';
+import { GoogleGenAI, Type, Chat } from "@google/genai";
+import { type AnalysisResult, type ChatMessage } from '../types';
 
 // This code runs on the server, where process.env.API_KEY is available.
 if (!process.env.API_KEY) {
@@ -48,6 +48,21 @@ const analysisSchema = {
   required: ["caseSummary", "plaintiffArticles", "defendantArticles"],
 };
 
+// --- Helper to serialize analysis for context ---
+function serializeAnalysisForContext(analysis: AnalysisResult): string {
+    const plaintiff = analysis.plaintiffArticles.map(a => `- ${a.article}: ${a.reasoning.substring(0, 100)}...`).join('\n');
+    const defendant = analysis.defendantArticles.map(a => `- ${a.article}: ${a.reasoning.substring(0, 100)}...`).join('\n');
+    return `[START OF PREVIOUS CASE ANALYSIS]
+Case Summary: ${analysis.caseSummary}
+Arguments for Plaintiff/Prosecutor:
+${plaintiff}
+Arguments for Defendant:
+${defendant}
+[END OF PREVIOUS CASE ANALYSIS]
+Based on the above context, please answer the user's following question.`;
+}
+
+
 // --- Server-side AI functions ---
 
 async function analyzeCase(payload: { caseDetails: string; country: string }): Promise<AnalysisResult> {
@@ -91,7 +106,7 @@ async function searchLaws(payload: { query: string }): Promise<string> {
     [Σε αυτό το σημείο, γράψε μια πολύ σύντομη περίληψη (1-2 προτάσεις) του άρθρου που βρέθηκε.]
 
     ### [Όνομα Κώδικα]: [Τίτλος Άρθρου]
-    [Εδώ τοποθέτησε το πλήρες, μη επεξεργασμένο κείμενο του άρθρου. Διατήρησε την αρχική αρίθμηση και τις παραγράφους του πρωτότυπου κειμένου.]
+    [Εδώ τοποθέσε το πλήρες, μη επεξεργασμένο κείμενο του άρθρου. Διατήρησε την αρχική αρίθμηση και τις παραγράφους του πρωτότυπου κειμένου.]
 
     **Πηγή:** [URL_της_πηγής]
 
@@ -101,8 +116,9 @@ async function searchLaws(payload: { query: string }): Promise<string> {
     return response.text;
 }
 
-async function chatWithAI(payload: { query: string }): Promise<string> {
-    const { query } = payload;
+
+async function chatWithAIStream(payload: { history: ChatMessage[] }, res: any) {
+    const { history } = payload;
     const model = "gemini-2.5-flash";
     const systemInstruction = `Είσαι ένας εξυπηρετικός νομικός βοηθός AI.
 - Απάντησε στις ερωτήσεις του χρήστη.
@@ -112,16 +128,41 @@ async function chatWithAI(payload: { query: string }): Promise<string> {
 - Αν σε ρωτήσουν ποιος σε δημιούργησε, ποιος είναι ο δημιουργός σου, ή ποιος σε έφτιαξε, απάντησε ότι σε δημιούργησε ο Δημήτρης Βατίστας και δώσε τους παρακάτω συνδέσμους για τα social media του:
   - Instagram: https://www.instagram.com/vatistasdimitris/
   - X (Twitter): https://x.com/vatistasdim`;
-
-    const response = await ai.models.generateContent({
-        model,
-        contents: query,
-        config: {
-            systemInstruction,
-            tools: [{ googleSearch: {} }],
-        },
+    
+    // Convert our custom history to Gemini's format
+    const geminiHistory = history.slice(0, -1).map(msg => {
+        if (msg.type === 'analysis') {
+            return { role: 'model', parts: [{ text: serializeAnalysisForContext(msg.content) }] };
+        }
+        // It's a TextMessage
+        return { role: msg.role === 'ai' ? 'model' : 'user', parts: [{ text: msg.content }] };
     });
-    return response.text;
+    
+    const lastMessage = history[history.length - 1];
+    if (lastMessage.type !== 'text') {
+        throw new Error("Last message in history must be a user text message.");
+    }
+    const latestUserMessage = lastMessage.content;
+
+    const chat: Chat = ai.chats.create({
+      model,
+      history: geminiHistory,
+      config: { systemInstruction, tools: [{googleSearch: {}}] },
+    });
+
+    const stream = await chat.sendMessageStream({ message: latestUserMessage });
+
+    res.writeHead(200, {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive',
+    });
+
+    for await (const chunk of stream) {
+        res.write(`data: ${JSON.stringify({ text: chunk.text })}\n\n`);
+    }
+    res.write(`data: [DONE]\n\n`);
+    res.end();
 }
 
 async function extractTextFromImage(payload: { base64Image: string }): Promise<string> {
@@ -184,6 +225,10 @@ export default async (req: any, res: any) => {
     }
 
     const { action, payload } = req.body;
+    
+    if (action === 'chatWithAIStream') {
+        return chatWithAIStream(payload, res);
+    }
 
     try {
         let result;
@@ -193,9 +238,6 @@ export default async (req: any, res: any) => {
                 break;
             case 'searchLaws':
                 result = await searchLaws(payload);
-                break;
-            case 'chatWithAI':
-                result = await chatWithAI(payload);
                 break;
             case 'extractTextFromImage':
                 result = await extractTextFromImage(payload);

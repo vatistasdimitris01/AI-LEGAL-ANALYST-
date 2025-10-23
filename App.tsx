@@ -1,8 +1,7 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
-import { analyzeCase, extractTextFromImage, chatWithAI, formatTextAsCase } from './services/geminiService';
-import { type AnalysisResult, type ChatMessage } from './types';
+import { analyzeCase, extractTextFromImage, chatWithAIStream, formatTextAsCase } from './services/geminiService';
+import { type AnalysisResult, type ChatMessage, type TextMessage, type AnalysisMessage } from './types';
 import InputBar from './components/InputBar';
-import ResultsDisplay from './components/ResultsDisplay';
 import CountryModal from './components/CountryModal';
 import { ScaleIcon, SparklesIcon, DocumentTextIcon, BookOpenIcon, LogoIcon, MenuIcon, XIcon, SunIcon, MoonIcon, ChatBubbleIcon } from './components/icons/Icons';
 import LoadingSpinner from './components/LoadingSpinner';
@@ -14,7 +13,6 @@ type InputMode = 'case' | 'chat';
 
 const App: React.FC = () => {
   const [inputText, setInputText] = useState<string>('');
-  const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [fileName, setFileName] = useState<string | null>(null);
@@ -156,24 +154,34 @@ const App: React.FC = () => {
   const handleChatSubmit = useCallback(async (text: string) => {
     setIsLoading(true);
     setError(null);
-    setAnalysis(null);
 
-    const userMessage: ChatMessage = { id: `user-${Date.now()}`, role: 'user', content: text };
-    setChatHistory(prev => [...prev, userMessage]);
+    const userMessage: TextMessage = { type: 'text', id: `user-${Date.now()}`, role: 'user', content: text };
+    const currentChatHistory = [...chatHistory, userMessage];
+    setChatHistory(currentChatHistory);
     
+    const aiMessageId = `ai-${Date.now()}`;
+    const aiMessage: TextMessage = { type: 'text', id: aiMessageId, role: 'ai', content: '' };
+    setChatHistory(prev => [...prev, aiMessage]);
+
     try {
-      const result = await chatWithAI(text);
-      const aiMessage: ChatMessage = { id: `ai-${Date.now()}`, role: 'ai', content: result };
-      setChatHistory(prev => [...prev, aiMessage]);
+      const stream = chatWithAIStream(currentChatHistory);
+      for await (const chunk of stream) {
+          setChatHistory(prev =>
+              prev.map(msg =>
+                  msg.id === aiMessageId ? { ...msg, content: (msg as TextMessage).content + chunk } : msg
+              )
+          );
+      }
     } catch (err) {
       console.error(err);
-      const errorMessage: ChatMessage = { id: `ai-error-${Date.now()}`, role: 'ai', content: 'Προέκυψε σφάλμα. Προσπαθήστε ξανά.' };
-      setChatHistory(prev => [...prev, errorMessage]);
+      const errorMessage: TextMessage = { type: 'text', id: `ai-error-${Date.now()}`, role: 'ai', content: 'Προέκυψε σφάλμα. Προσπαθήστε ξανά.' };
+      // Replace the empty message with the error message
+      setChatHistory(prev => prev.map(msg => msg.id === aiMessageId ? errorMessage : msg));
       setError('Προέκυψε σφάλμα κατά την επικοινωνία με την AI.');
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [chatHistory]);
 
   const handleTriggerSubmit = () => {
     if (!inputText.trim()) return;
@@ -191,11 +199,13 @@ const App: React.FC = () => {
     setIsModalOpen(false);
     setIsLoading(true);
     setError(null);
-    setAnalysis(null);
+    setChatHistory([]);
 
     try {
       const result = await analyzeCase(inputText, country);
-      setAnalysis(result);
+      const analysisMessage: AnalysisMessage = { type: 'analysis', id: `analysis-${Date.now()}`, role: 'ai', content: result };
+      setChatHistory([analysisMessage]);
+      setInputMode('chat');
       setInputText('');
       setFileName(null);
     } catch (err) {
@@ -208,9 +218,9 @@ const App: React.FC = () => {
   
   const handleRegenerate = useCallback(async () => {
     const lastUserMessage = [...chatHistory].reverse().find(m => m.role === 'user');
-    if (!lastUserMessage) return;
+    if (!lastUserMessage || lastUserMessage.type !== 'text') return;
 
-    setChatHistory(prev => prev.filter((_, i) => i !== prev.length -1 || prev[prev.length-1].role !== 'ai'));
+    setChatHistory(prev => prev.filter((msg) => !(msg.role === 'ai' && msg.id === chatHistory[chatHistory.length -1].id)));
     
     await handleChatSubmit(lastUserMessage.content);
 
@@ -221,7 +231,11 @@ const App: React.FC = () => {
     if (messageIndex === -1) return;
 
     const updatedHistory = chatHistory.slice(0, messageIndex + 1);
-    updatedHistory[messageIndex].content = newContent;
+    const messageToUpdate = updatedHistory[messageIndex];
+    if (messageToUpdate.type === 'text') {
+        messageToUpdate.content = newContent;
+    }
+    
     setChatHistory(updatedHistory);
 
     await handleChatSubmit(newContent);
@@ -230,7 +244,6 @@ const App: React.FC = () => {
 
   const handleReset = () => {
     setInputText('');
-    setAnalysis(null);
     setChatHistory([]);
     setError(null);
     setFileName(null);
@@ -238,11 +251,6 @@ const App: React.FC = () => {
     setInputMode('case');
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
-  
-  const handleNewChat = () => {
-      setChatHistory([]);
-      setError(null);
-  }
   
   const handleSetView = (view: View) => {
     setCurrentView(view);
@@ -296,8 +304,7 @@ const App: React.FC = () => {
 
   const isProcessingUrl = isFetchingUrl || isFormattingCase;
   const isInputLoading = isLoading || isProcessingUrl || isProcessingImage;
-  const showWelcome = !isLoading && !analysis && chatHistory.length === 0;
-  const showInputBar = !analysis;
+  const showWelcome = !isLoading && chatHistory.length === 0;
 
   return (
     <div className="min-h-screen flex flex-col font-sans">
@@ -349,7 +356,7 @@ const App: React.FC = () => {
 
       <main className="flex-grow container mx-auto p-4 md:p-6 lg:p-8 w-full max-w-4xl relative">
         {currentView === 'analysis' && (
-          <div className={showInputBar ? 'pb-40' : ''}>
+          <div className={'pb-40'}>
             {isLoading && chatHistory.length === 0 && <LoadingSpinner />}
             {error && !isLoading && (
               <div className="bg-accent-red/10 dark:bg-dark-accent-red/10 border border-accent-red/30 dark:border-dark-accent-red/30 text-accent-red dark:text-dark-accent-red px-4 py-3 rounded-lg relative text-center mb-4 animate-fade-in" role="alert">
@@ -381,8 +388,7 @@ const App: React.FC = () => {
                   </div>
               </div>
             )}
-            {analysis && <ResultsDisplay analysis={analysis} onReset={handleReset} />}
-            {chatHistory.length > 0 && <ChatDisplay history={chatHistory} onEdit={handleEdit} onRegenerate={handleRegenerate} isLoading={isLoading} onNewChat={handleNewChat} />}
+            {chatHistory.length > 0 && <ChatDisplay history={chatHistory} onEdit={handleEdit} onRegenerate={handleRegenerate} isLoading={isLoading} onStartOver={handleReset} />}
              <div ref={bottomOfChatRef} />
           </div>
         )}
@@ -391,7 +397,7 @@ const App: React.FC = () => {
 
       </main>
       
-      {currentView === 'analysis' && showInputBar && (
+      {currentView === 'analysis' && (
          <div className="fixed bottom-0 left-0 right-0 p-4 flex justify-center pointer-events-none">
             <div className="w-full max-w-4xl pointer-events-auto flex flex-col items-center">
               {isUrlDetected && !isInputLoading && inputMode === 'case' && (
@@ -423,8 +429,8 @@ const App: React.FC = () => {
                   mode={inputMode}
                   onModeChange={(newMode) => {
                       setInputMode(newMode);
-setError(null);
-                      if (analysis) handleReset();
+                      setError(null);
+                      if (chatHistory.length > 0 && newMode === 'case') handleReset();
                   }}
               />
             </div>
