@@ -34,13 +34,13 @@ export const searchLaws = (query: string): Promise<string> => {
   return callApi<string>('searchLaws', { query });
 };
 
-export async function* chatWithAIStream(history: ChatMessage[]): AsyncGenerator<string, void, undefined> {
+export async function* chatWithAIStream(history: ChatMessage[], analysisContext: AnalysisResult | null): AsyncGenerator<string, void, undefined> {
   const response = await fetch('/api/gemini', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ action: 'chatWithAIStream', payload: { history } }),
+    body: JSON.stringify({ action: 'chatWithAIStream', payload: { history, analysisContext } }),
   });
 
   if (!response.ok) {
@@ -92,4 +92,8 @@ export const extractTextFromImage = (base64Image: string): Promise<string> => {
 
 export const formatTextAsCase = (rawText: string, source: string): Promise<string> => {
   return callApi<string>('formatTextAsCase', { rawText, source });
+};
+
+export const refineAnalysisForReadability = (analysis: AnalysisResult): Promise<AnalysisResult> => {
+  return callApi<AnalysisResult>('refineAnalysisForReadability', { analysis });
 };

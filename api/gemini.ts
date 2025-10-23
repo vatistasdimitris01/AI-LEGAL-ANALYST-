@@ -50,16 +50,15 @@ const analysisSchema = {
 
 // --- Helper to serialize analysis for context ---
 function serializeAnalysisForContext(analysis: AnalysisResult): string {
-    const plaintiff = analysis.plaintiffArticles.map(a => `- ${a.article}: ${a.reasoning.substring(0, 100)}...`).join('\n');
-    const defendant = analysis.defendantArticles.map(a => `- ${a.article}: ${a.reasoning.substring(0, 100)}...`).join('\n');
-    return `[START OF PREVIOUS CASE ANALYSIS]
+    const plaintiff = analysis.plaintiffArticles.map(a => `- ${a.article}: ${a.reasoning}`).join('\n');
+    const defendant = analysis.defendantArticles.map(a => `- ${a.article}: ${a.reasoning}`).join('\n');
+    return `[START OF CASE ANALYSIS CONTEXT]
 Case Summary: ${analysis.caseSummary}
 Arguments for Plaintiff/Prosecutor:
 ${plaintiff}
 Arguments for Defendant:
 ${defendant}
-[END OF PREVIOUS CASE ANALYSIS]
-Based on the above context, please answer the user's following question.`;
+[END OF CASE ANALYSIS CONTEXT]`;
 }
 
 
@@ -92,6 +91,35 @@ async function analyzeCase(payload: { caseDetails: string; country: string }): P
   return result;
 }
 
+async function refineAnalysisForReadability(payload: { analysis: AnalysisResult }): Promise<AnalysisResult> {
+    const { analysis } = payload;
+    const model = "gemini-2.5-flash";
+    const prompt = `Είσαι ένας βοηθός AI με εξειδίκευση στην απλοποίηση πολύπλοκων νομικών κειμένων. Ο στόχος σου είναι να ξαναγράψεις την παρεχόμενη νομική ανάλυση (σε μορφή JSON) για να είναι πιο κατανοητή από κάποιον που δεν είναι ειδικός, χωρίς να χάσεις την ουσία.
+
+Οδηγίες:
+1. Διατήρησε την αρχική δομή JSON (caseSummary, plaintiffArticles, defendantArticles) και όλα τα πεδία, συμπεριλαμβανομένων των links.
+2. Στην 'caseSummary', χρησιμοποίησε πιο απλή γλώσσα και χώρισε τις μεγάλες παραγράφους σε μικρότερες. Χρησιμοποίησε Markdown (π.χ. bullet points) για να βελτιώσεις την αναγνωσιμότητα.
+3. Για κάθε 'reasoning' στα 'plaintiffArticles' και 'defendantArticles', εξήγησε τη νομική λογική με σαφή και απλά λόγια. Αντικατάστησε την πολύπλοκη νομική ορολογία με πιο απλές εξηγήσεις.
+4. Βεβαιώσου ότι η απάντησή σου είναι ένα έγκυρο JSON που συμμορφώνεται με το παρεχόμενο σχήμα.
+5. Η απάντηση πρέπει να είναι εξ ολοκλήρου στα Ελληνικά.
+
+Αρχική Ανάλυση JSON προς βελτίωση:
+${JSON.stringify(analysis)}`;
+
+    const response = await ai.models.generateContent({
+        model,
+        contents: prompt,
+        config: { responseMimeType: "application/json", responseSchema: analysisSchema, temperature: 0.7 },
+    });
+
+    const jsonText = response.text.trim().replace(/^```json\s*|```$/g, '');
+    const result = JSON.parse(jsonText) as AnalysisResult;
+     if (!result.caseSummary || !result.plaintiffArticles || !result.defendantArticles) {
+        throw new Error("Μη έγκυρη δομή απάντησης από την AI κατά τη βελτίωση.");
+    }
+    return result;
+}
+
 async function searchLaws(payload: { query: string }): Promise<string> {
     const { query } = payload;
     const model = "gemini-2.5-flash";
@@ -117,8 +145,8 @@ async function searchLaws(payload: { query: string }): Promise<string> {
 }
 
 
-async function chatWithAIStream(payload: { history: ChatMessage[] }, res: any) {
-    const { history } = payload;
+async function chatWithAIStream(payload: { history: ChatMessage[]; analysisContext: AnalysisResult | null }, res: any) {
+    const { history, analysisContext } = payload;
     const model = "gemini-2.5-flash";
     const systemInstruction = `Είσαι ένας εξυπηρετικός νομικός βοηθός AI.
 - Απάντησε στις ερωτήσεις του χρήστη.
@@ -129,17 +157,30 @@ async function chatWithAIStream(payload: { history: ChatMessage[] }, res: any) {
   - Instagram: https://www.instagram.com/vatistasdimitris/
   - X (Twitter): https://x.com/vatistasdim`;
     
-    // Convert our custom history to Gemini's format
-    const geminiHistory = history.slice(0, -1).map(msg => {
-        if (msg.type === 'analysis') {
-            return { role: 'model', parts: [{ text: serializeAnalysisForContext(msg.content) }] };
-        }
-        // It's a TextMessage
-        return { role: msg.role === 'ai' ? 'model' : 'user', parts: [{ text: msg.content }] };
+    const geminiHistory = [];
+
+    // Prepend the analysis context to the history for the AI model
+    if (analysisContext) {
+        geminiHistory.push({
+            role: 'user',
+            parts: [{ text: serializeAnalysisForContext(analysisContext) }]
+        });
+        geminiHistory.push({
+            role: 'model',
+            parts: [{ text: "Έχω διαβάσει την ανάλυση της υπόθεσης που παρείχατε. Είμαι έτοιμος να απαντήσω στις ερωτήσεις σας." }]
+        });
+    }
+    
+    // Convert the rest of the client-side chat history
+    history.slice(0, -1).forEach(msg => {
+        geminiHistory.push({
+            role: msg.role === 'ai' ? 'model' : 'user',
+            parts: [{ text: msg.content }]
+        });
     });
     
     const lastMessage = history[history.length - 1];
-    if (lastMessage.type !== 'text') {
+    if (!lastMessage || lastMessage.role !== 'user') {
         throw new Error("Last message in history must be a user text message.");
     }
     const latestUserMessage = lastMessage.content;
@@ -244,6 +285,9 @@ export default async (req: any, res: any) => {
                 break;
             case 'formatTextAsCase':
                 result = await formatTextAsCase(payload);
+                break;
+            case 'refineAnalysisForReadability':
+                result = await refineAnalysisForReadability(payload);
                 break;
             default:
                 return res.status(400).json({ error: 'Invalid action specified' });

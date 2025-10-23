@@ -1,12 +1,13 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
-import { analyzeCase, extractTextFromImage, chatWithAIStream, formatTextAsCase } from './services/geminiService';
-import { type AnalysisResult, type ChatMessage, type TextMessage, type AnalysisMessage } from './types';
+import { analyzeCase, extractTextFromImage, chatWithAIStream, formatTextAsCase, refineAnalysisForReadability } from './services/geminiService';
+import { type AnalysisResult, type ChatMessage } from './types';
 import InputBar from './components/InputBar';
 import CountryModal from './components/CountryModal';
 import { ScaleIcon, SparklesIcon, DocumentTextIcon, BookOpenIcon, LogoIcon, MenuIcon, XIcon, SunIcon, MoonIcon, ChatBubbleIcon } from './components/icons/Icons';
 import LoadingSpinner from './components/LoadingSpinner';
 import LawLibrary from './components/LawSearch';
 import ChatDisplay from './components/ChatDisplay';
+import ResultsDisplay from './components/ResultsDisplay';
 
 type View = 'analysis' | 'library';
 type InputMode = 'case' | 'chat';
@@ -23,7 +24,11 @@ const App: React.FC = () => {
   const [isProcessingImage, setIsProcessingImage] = useState<boolean>(false);
   const [currentView, setCurrentView] = useState<View>('analysis');
   const [inputMode, setInputMode] = useState<InputMode>('case');
+  
+  const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
+  const [analysisContext, setAnalysisContext] = useState<AnalysisResult | null>(null);
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
+  
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
     if (typeof window !== 'undefined' && localStorage.getItem('theme')) {
@@ -155,33 +160,37 @@ const App: React.FC = () => {
     setIsLoading(true);
     setError(null);
 
-    const userMessage: TextMessage = { type: 'text', id: `user-${Date.now()}`, role: 'user', content: text };
+    // If this is the first message in a chat that follows an analysis, clear the analysis view
+    if (analysisResult) {
+      setAnalysisResult(null);
+    }
+
+    const userMessage: ChatMessage = { id: `user-${Date.now()}`, role: 'user', content: text };
     const currentChatHistory = [...chatHistory, userMessage];
     setChatHistory(currentChatHistory);
     
     const aiMessageId = `ai-${Date.now()}`;
-    const aiMessage: TextMessage = { type: 'text', id: aiMessageId, role: 'ai', content: '' };
+    const aiMessage: ChatMessage = { id: aiMessageId, role: 'ai', content: '' };
     setChatHistory(prev => [...prev, aiMessage]);
 
     try {
-      const stream = chatWithAIStream(currentChatHistory);
+      const stream = chatWithAIStream(currentChatHistory, analysisContext);
       for await (const chunk of stream) {
           setChatHistory(prev =>
               prev.map(msg =>
-                  msg.id === aiMessageId ? { ...msg, content: (msg as TextMessage).content + chunk } : msg
+                  msg.id === aiMessageId ? { ...msg, content: msg.content + chunk } : msg
               )
           );
       }
     } catch (err) {
       console.error(err);
-      const errorMessage: TextMessage = { type: 'text', id: `ai-error-${Date.now()}`, role: 'ai', content: 'Προέκυψε σφάλμα. Προσπαθήστε ξανά.' };
-      // Replace the empty message with the error message
+      const errorMessage: ChatMessage = { id: `ai-error-${Date.now()}`, role: 'ai', content: 'Προέκυψε σφάλμα. Προσπαθήστε ξανά.' };
       setChatHistory(prev => prev.map(msg => msg.id === aiMessageId ? errorMessage : msg));
       setError('Προέκυψε σφάλμα κατά την επικοινωνία με την AI.');
     } finally {
       setIsLoading(false);
     }
-  }, [chatHistory]);
+  }, [chatHistory, analysisContext, analysisResult]);
 
   const handleTriggerSubmit = () => {
     if (!inputText.trim()) return;
@@ -200,11 +209,12 @@ const App: React.FC = () => {
     setIsLoading(true);
     setError(null);
     setChatHistory([]);
+    setAnalysisResult(null);
 
     try {
       const result = await analyzeCase(inputText, country);
-      const analysisMessage: AnalysisMessage = { type: 'analysis', id: `analysis-${Date.now()}`, role: 'ai', content: result };
-      setChatHistory([analysisMessage]);
+      setAnalysisResult(result);
+      setAnalysisContext(result);
       setInputMode('chat');
       setInputText('');
       setFileName(null);
@@ -218,7 +228,7 @@ const App: React.FC = () => {
   
   const handleRegenerate = useCallback(async () => {
     const lastUserMessage = [...chatHistory].reverse().find(m => m.role === 'user');
-    if (!lastUserMessage || lastUserMessage.type !== 'text') return;
+    if (!lastUserMessage) return;
 
     setChatHistory(prev => prev.filter((msg) => !(msg.role === 'ai' && msg.id === chatHistory[chatHistory.length -1].id)));
     
@@ -231,20 +241,33 @@ const App: React.FC = () => {
     if (messageIndex === -1) return;
 
     const updatedHistory = chatHistory.slice(0, messageIndex + 1);
-    const messageToUpdate = updatedHistory[messageIndex];
-    if (messageToUpdate.type === 'text') {
-        messageToUpdate.content = newContent;
-    }
+    updatedHistory[messageIndex].content = newContent;
     
     setChatHistory(updatedHistory);
 
     await handleChatSubmit(newContent);
   }, [chatHistory, handleChatSubmit]);
 
+  const handleRefineAnalysis = useCallback(async () => {
+    if (!analysisResult) return;
+    
+    try {
+      const refinedResult = await refineAnalysisForReadability(analysisResult);
+      setAnalysisResult(refinedResult);
+      setAnalysisContext(refinedResult); // Update context as well
+    } catch (err) {
+      console.error(err);
+      setError('Αποτυχία βελτίωσης της ανάλυσης. Προσπαθήστε ξανά.');
+      throw err; // Re-throw to be caught by the component
+    }
+  }, [analysisResult]);
+
 
   const handleReset = () => {
     setInputText('');
     setChatHistory([]);
+    setAnalysisResult(null);
+    setAnalysisContext(null);
     setError(null);
     setFileName(null);
     setIsModalOpen(false);
@@ -304,7 +327,7 @@ const App: React.FC = () => {
 
   const isProcessingUrl = isFetchingUrl || isFormattingCase;
   const isInputLoading = isLoading || isProcessingUrl || isProcessingImage;
-  const showWelcome = !isLoading && chatHistory.length === 0;
+  const showWelcome = !isLoading && !analysisResult && chatHistory.length === 0;
 
   return (
     <div className="min-h-screen flex flex-col font-sans">
@@ -357,7 +380,7 @@ const App: React.FC = () => {
       <main className="flex-grow container mx-auto p-4 md:p-6 lg:p-8 w-full max-w-4xl relative">
         {currentView === 'analysis' && (
           <div className={'pb-40'}>
-            {isLoading && chatHistory.length === 0 && <LoadingSpinner />}
+            {isLoading && !analysisResult && <LoadingSpinner />}
             {error && !isLoading && (
               <div className="bg-accent-red/10 dark:bg-dark-accent-red/10 border border-accent-red/30 dark:border-dark-accent-red/30 text-accent-red dark:text-dark-accent-red px-4 py-3 rounded-lg relative text-center mb-4 animate-fade-in" role="alert">
                 <strong className="font-bold">Σφάλμα: </strong>
@@ -388,8 +411,11 @@ const App: React.FC = () => {
                   </div>
               </div>
             )}
-            {chatHistory.length > 0 && <ChatDisplay history={chatHistory} onEdit={handleEdit} onRegenerate={handleRegenerate} isLoading={isLoading} onStartOver={handleReset} />}
-             <div ref={bottomOfChatRef} />
+            
+            {analysisResult && !isLoading && <ResultsDisplay result={analysisResult} onRefine={handleRefineAnalysis} onStartOver={handleReset} />}
+            {chatHistory.length > 0 && !analysisResult && <ChatDisplay history={chatHistory} onEdit={handleEdit} onRegenerate={handleRegenerate} isLoading={isLoading} onStartOver={handleReset} />}
+            
+            <div ref={bottomOfChatRef} />
           </div>
         )}
         
@@ -430,7 +456,7 @@ const App: React.FC = () => {
                   onModeChange={(newMode) => {
                       setInputMode(newMode);
                       setError(null);
-                      if (chatHistory.length > 0 && newMode === 'case') handleReset();
+                      if (chatHistory.length > 0 || analysisResult) handleReset();
                   }}
               />
             </div>
