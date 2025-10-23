@@ -136,7 +136,7 @@ const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ analysis, onReset }) =>
       <div className="grid md:grid-cols-2 gap-6">
         <div>
           <h3 className="text-xl font-semibold mb-4 text-brand-text-primary dark:text-dark-text-primary flex items-center">
-            <CheckBadgeIcon className="w-6 h-6 mr-2 text-green-500" />
+            <CheckBadgeIcon className="w-6 h-6 mr-2 text-accent-green dark:text-dark-accent-green" />
             Για τον Ενάγοντα / Κατήγορο
           </h3>
           <div className="space-y-4">
@@ -145,7 +145,7 @@ const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ analysis, onReset }) =>
         </div>
         <div>
           <h3 className="text-xl font-semibold mb-4 text-brand-text-primary dark:text-dark-text-primary flex items-center">
-            <ShieldExclamationIcon className="w-6 h-6 mr-2 text-yellow-500" />
+            <ShieldExclamationIcon className="w-6 h-6 mr-2 text-accent-orange dark:text-dark-accent-orange" />
             Για τον Εναγόμενο
           </h3>
           <div className="space-y-4">

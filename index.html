@@ -30,30 +30,38 @@
           extend: {
             colors: {
               // Light Mode
-              'brand-primary': '#f8fafc',      // slate-50 (Background)
-              'brand-secondary': '#ffffff',     // white (Cards)
-              'brand-accent': '#0ea5e9',       // sky-500 (Active buttons, links)
-              'brand-accent-dark': '#0284c7',   // sky-600 (Active button hover)
-              'brand-text-primary': '#0f172a', // slate-900 (Main text)
-              'brand-text-secondary': '#64748b',// slate-500 (Secondary text)
-              'brand-border': '#e2e8f0',       // slate-200 (Borders)
-              'brand-dark': '#1e293b',         // slate-800 - Search button
-              'brand-dark-hover': '#334155',   // slate-700
-              'user-bubble': '#e0f2fe',        // sky-100
-              'ai-bubble': '#f1f5f9',          // slate-100
-              'input-bg': '#f1f5f9',         // slate-100
+              'brand-primary': '#FFFFFF',
+              'brand-secondary': '#F3F3F3',
+              'brand-accent': '#265FFF',
+              'brand-accent-dark': '#1F4BCC',
+              'brand-text-primary': '#0D0D0D',
+              'brand-text-secondary': '#505050',
+              'brand-text-inverted': '#F3F3F3',
+              'brand-border': '#E6E6E6',
+              'brand-dark': '#0D0D0D',
+              'brand-dark-hover': '#333333',
+              'user-bubble': '#E9EFFF',
+              'ai-bubble': '#F3F3F3',
+              'input-bg': '#F3F3F3',
+              'accent-red': '#E62E2A',
+              'accent-orange': '#E2561F',
+              'accent-green': '#0B8635',
               
               // Dark Mode
-              'dark-primary': '#0f172a',        // slate-900 (Background)
-              'dark-secondary': '#1e293b',       // slate-800 (Cards)
-              'dark-accent': '#38bdf8',         // sky-400
-              'dark-accent-dark': '#0ea5e9',     // sky-500
-              'dark-text-primary': '#f1f5f9',         // slate-100
-              'dark-text-secondary': '#94a3b8',      // slate-400
-              'dark-border': '#334155',         // slate-700
-              'dark-user-bubble': '#0c4a6e',        // sky-900
-              'dark-ai-bubble': '#334155',          // slate-700
-              'dark-input-bg': '#334155',           // slate-700
+              'dark-primary': '#121212',
+              'dark-secondary': '#383838',
+              'dark-accent': '#265FFF',
+              'dark-accent-dark': '#598BFF',
+              'dark-text-primary': '#FFFFFF',
+              'dark-text-secondary': '#C0C0C0',
+              'dark-text-inverted': '#121212',
+              'dark-border': '#414141',
+              'dark-user-bubble': '#265FFF',
+              'dark-ai-bubble': '#383838',
+              'dark-input-bg': '#383838',
+              'dark-accent-red': '#FF5858',
+              'dark-accent-orange': '#FF926C',
+              'dark-accent-green': '#1AD977',
             },
             animation: {
               'pulse-fast': 'pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
@@ -77,45 +85,57 @@
         font-size: 1rem;
         font-weight: 600;
         margin-bottom: 0.25rem;
-        color: #475569; /* slate-600 */
+        color: #505050;
       }
-      .dark .law-library-results .prose h2 { color: #94a3b8; }
+      .dark .law-library-results .prose h2 { color: #C0C0C0; }
       
       .law-library-results .prose h3 {
         font-size: 1.125rem;
         font-weight: 700;
         margin-bottom: 1rem;
-        color: #0f172a; /* slate-900 */
+        color: #0D0D0D;
       }
-      .dark .law-library-results .prose h3 { color: #f1f5f9; }
+      .dark .law-library-results .prose h3 { color: #FFFFFF; }
 
       .law-library-results .prose p,
-      .law-library-results .prose li { margin-top: 0.5rem; line-height: 1.6; }
+      .law-library-results .prose li { margin-top: 0.5rem; line-height: 1.6; color: #505050; }
       .dark .law-library-results .prose p,
-      .dark .law-library-results .prose li { color: #cbd5e1; } /* slate-300 */
+      .dark .law-library-results .prose li { color: #C0C0C0; }
 
-      .law-library-results .prose a { color: #0ea5e9; font-weight: 600; }
-      .dark .law-library-results .prose a { color: #38bdf8; }
+      .law-library-results .prose a { color: #265FFF; font-weight: 600; }
+      .dark .law-library-results .prose a { color: #598BFF; }
       .law-library-results .prose a:hover { text-decoration: underline; }
 
-      .law-library-results .prose strong { color: #334155; }
-      .dark .law-library-results .prose strong { color: #e2e8f0; } /* slate-200 */
+      .law-library-results .prose strong { color: #0D0D0D; }
+      .dark .law-library-results .prose strong { color: #FFFFFF; }
 
        .prose-chat p { margin-top: 0; margin-bottom: 0.75rem; }
        .prose-chat p:last-child { margin-bottom: 0; }
-       .prose-chat strong { color: #0f172a; }
-       .dark .prose-chat strong { color: #f1f5f9; }
-       .prose-chat a { color: #0ea5e9; }
-       .dark .prose-chat a { color: #38bdf8; }
+       .prose-chat strong { color: #0D0D0D; }
+       .dark .prose-chat strong { color: #FFFFFF; }
+       .prose-chat a { color: #265FFF; }
+       .dark .prose-chat a { color: #598BFF; }
+       
+       /* Styles for user bubble in dark mode with inverted text */
+       .dark .prose-chat-user-dark, .dark .prose-chat-user-dark p {
+           color: #121212;
+       }
+       .dark .prose-chat-user-dark strong {
+           color: #000000;
+       }
+       .dark .prose-chat-user-dark a {
+           color: #FFFFFF;
+           text-decoration: underline;
+       }
 
       /* Custom Scrollbar */
       ::-webkit-scrollbar { width: 8px; }
-      ::-webkit-scrollbar-track { background: #e2e8f0; }
-      .dark ::-webkit-scrollbar-track { background: #1e293b; }
-      ::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 4px; }
-      .dark ::-webkit-scrollbar-thumb { background: #475569; }
-      ::-webkit-scrollbar-thumb:hover { background: #64748b; }
-      .dark ::-webkit-scrollbar-thumb:hover { background: #64748b; }
+      ::-webkit-scrollbar-track { background: #E6E6E6; }
+      .dark ::-webkit-scrollbar-track { background: #383838; }
+      ::-webkit-scrollbar-thumb { background: #BFBFBF; border-radius: 4px; }
+      .dark ::-webkit-scrollbar-thumb { background: #AFAFAF; }
+      ::-webkit-scrollbar-thumb:hover { background: #505050; }
+      .dark ::-webkit-scrollbar-thumb:hover { background: #C0C0C0; }
 
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>

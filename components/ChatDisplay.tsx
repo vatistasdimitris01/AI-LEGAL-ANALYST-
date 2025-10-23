@@ -5,10 +5,10 @@ import { UserIcon, AiIcon, CopyIcon, SquarePenIcon, RotateCcwIcon, ArrowPathIcon
 declare const marked: any;
 declare const DOMPurify: any;
 
-const MarkdownRenderer: React.FC<{ content: string }> = ({ content }) => {
+const MarkdownRenderer: React.FC<{ content: string, className?: string }> = ({ content, className }) => {
     const rawMarkup = marked.parse(content || '');
     const sanitizedMarkup = DOMPurify.sanitize(rawMarkup);
-    return <div className="prose prose-chat max-w-none text-brand-text-primary dark:text-dark-text-primary" dangerouslySetInnerHTML={{ __html: sanitizedMarkup }} />;
+    return <div className={`prose prose-chat max-w-none text-brand-text-primary dark:text-dark-text-primary ${className || ''}`} dangerouslySetInnerHTML={{ __html: sanitizedMarkup }} />;
 };
 
 interface MessageProps {
@@ -45,6 +45,8 @@ const Message: React.FC<MessageProps> = ({ message, isLastMessage, onEdit, onReg
     const bubbleClass = isUser 
       ? 'bg-user-bubble dark:bg-dark-user-bubble rounded-br-lg' 
       : 'bg-ai-bubble dark:bg-dark-ai-bubble rounded-bl-lg';
+    const textClass = isUser ? 'dark:prose-chat-user-dark' : '';
+
 
     return (
         <div className={`flex items-start gap-4 ${isUser ? 'justify-end' : 'justify-start'} animate-slide-up`}>
@@ -72,7 +74,7 @@ const Message: React.FC<MessageProps> = ({ message, isLastMessage, onEdit, onReg
                              </div>
                         </div>
                     ) : (
-                         <MarkdownRenderer content={message.content} />
+                         <MarkdownRenderer content={message.content} className={textClass} />
                     )}
                  </div>
                  <div className="h-7 mt-1 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">

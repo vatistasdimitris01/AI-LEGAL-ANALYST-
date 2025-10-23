@@ -326,7 +326,7 @@ const App: React.FC = () => {
           <div className={showInputBar ? 'pb-40' : ''}>
             {isLoading && chatHistory.length === 0 && <LoadingSpinner />}
             {error && !isLoading && (
-              <div className="bg-red-100 dark:bg-red-900/20 border border-red-400 dark:border-red-500/30 text-red-700 dark:text-red-300 px-4 py-3 rounded-lg relative text-center mb-4 animate-fade-in" role="alert">
+              <div className="bg-accent-red/10 dark:bg-dark-accent-red/10 border border-accent-red/30 dark:border-dark-accent-red/30 text-accent-red dark:text-dark-accent-red px-4 py-3 rounded-lg relative text-center mb-4 animate-fade-in" role="alert">
                 <strong className="font-bold">Σφάλμα: </strong>
                 <span className="block sm:inline">{error}</span>
               </div>
