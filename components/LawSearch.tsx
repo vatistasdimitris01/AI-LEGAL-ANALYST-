@@ -63,8 +63,8 @@ const LawLibrary: React.FC = () => {
     };
 
     return (
-        <div className="w-full space-y-6 animate-fade-in">
-            <div className="text-center pt-4 animate-slide-up">
+        <div className="w-full space-y-8 animate-fade-in">
+            <div className="text-center pt-6 animate-slide-up">
                 <div className="inline-block p-3 bg-brand-accent/10 rounded-full">
                     <BookOpenIcon className="w-8 h-8 sm:w-10 sm:w-10 mx-auto text-brand-accent" />
                 </div>
@@ -92,7 +92,7 @@ const LawLibrary: React.FC = () => {
                     </button>
                 </form>
 
-                <div className="mt-8">
+                <div className="mt-10">
                     {isLoading && (
                         <div className="flex items-center justify-center text-brand-text-secondary dark:text-dark-text-secondary py-4">
                              <div className="w-4 h-4 border-2 border-brand-text-tertiary border-t-transparent rounded-full animate-spin mr-2"></div>
@@ -110,7 +110,7 @@ const LawLibrary: React.FC = () => {
                                         href={parsedResult.sourceUrl} 
                                         target="_blank" 
                                         rel="noopener noreferrer" 
-                                        className="flex items-center gap-3 bg-brand-secondary/50 dark:bg-dark-tertiary/50 hover:bg-brand-secondary dark:hover:bg-dark-tertiary p-2.5 rounded-lg border border-brand-border dark:border-dark-border transition-colors w-full"
+                                        className="flex items-center gap-3 bg-brand-secondary/50 dark:bg-dark-tertiary/50 hover:bg-brand-secondary dark:hover:bg-dark-tertiary p-3 rounded-lg border border-brand-border dark:border-dark-border transition-colors w-full"
                                      >
                                         <LinkIcon className="w-5 h-5 text-brand-accent dark:text-dark-accent flex-shrink-0" />
                                         <span className="text-brand-accent dark:text-dark-accent font-semibold truncate text-sm">{parsedResult.sourceDomain}</span>

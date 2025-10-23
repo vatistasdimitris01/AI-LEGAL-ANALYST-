@@ -347,7 +347,7 @@ const App: React.FC = () => {
         </div>
       )}
 
-      <main className="flex-grow container mx-auto p-3 md:p-4 lg:p-6 w-full max-w-4xl relative">
+      <main className="flex-grow container mx-auto p-4 md:p-6 lg:p-8 w-full max-w-4xl relative">
         {currentView === 'analysis' && (
           <div className={showInputBar ? 'pb-40' : ''}>
             {isLoading && chatHistory.length === 0 && <LoadingSpinner />}
@@ -358,7 +358,7 @@ const App: React.FC = () => {
               </div>
             )}
             {showWelcome && (
-              <div className="text-center pt-6 sm:pt-12 space-y-10 animate-slide-up">
+              <div className="text-center pt-8 sm:pt-16 space-y-12 animate-slide-up">
                   <div className="space-y-4">
                     <div className="inline-block p-3 bg-brand-accent/10 rounded-full">
                        <SparklesIcon className="h-8 w-8 sm:h-10 sm:w-10 mx-auto text-brand-accent" />
@@ -368,7 +368,7 @@ const App: React.FC = () => {
                       Ένας βοηθός AI για γρήγορη νομική ανάλυση, συνομιλία και αναζήτηση στη βιβλιοθήκη.
                     </p>
                   </div>
-                  <div className="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-4 -mx-4 px-4 scrollbar-hide sm:mx-0 sm:px-0 sm:grid sm:grid-cols-3 sm:overflow-visible sm:pb-0 max-w-3xl mx-auto">
+                  <div className="flex overflow-x-auto snap-x snap-mandatory gap-4 sm:gap-6 pb-4 -mx-4 px-4 scrollbar-hide sm:mx-0 sm:px-0 sm:grid sm:grid-cols-3 sm:overflow-visible sm:pb-0 max-w-3xl mx-auto">
                       {features.map((feature, index) => (
                         <FeatureCard 
                           key={index}

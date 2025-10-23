@@ -57,7 +57,7 @@ const Message: React.FC<MessageProps> = ({ message, isLastMessage, onEdit, onReg
             )}
 
             <div className={`group relative w-full max-w-[85%] flex flex-col ${isUser ? 'items-end' : 'items-start'}`}>
-                 <div className={`relative px-3 py-2 rounded-2xl ${bubbleClass}`}>
+                 <div className={`relative px-4 py-3 rounded-2xl ${bubbleClass}`}>
                     {isEditing ? (
                         <div className="flex flex-col gap-2">
                              <textarea
@@ -77,7 +77,7 @@ const Message: React.FC<MessageProps> = ({ message, isLastMessage, onEdit, onReg
                          <MarkdownRenderer content={message.content} className={textClass} />
                     )}
                  </div>
-                 <div className="h-7 mt-1 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                 <div className="h-7 mt-1 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                     {isUser && (
                          <button onClick={() => setIsEditing(true)} title="Επεξεργασία" className="p-1 text-brand-text-secondary dark:text-dark-text-secondary hover:text-brand-text-primary dark:hover:text-dark-text-primary hover:bg-brand-secondary dark:hover:bg-dark-secondary rounded-full">
                             <SquarePenIcon className="w-3.5 h-3.5" />
@@ -114,11 +114,11 @@ interface ChatDisplayProps {
 
 const ChatDisplay: React.FC<ChatDisplayProps> = ({ history, onEdit, onRegenerate, isLoading, onNewChat }) => {
     return (
-        <div className="space-y-6">
+        <div className="space-y-8">
              <div className="flex justify-end animate-fade-in">
                 <button
                     onClick={onNewChat}
-                    className="flex items-center bg-brand-secondary dark:bg-dark-secondary hover:bg-brand-tertiary dark:hover:bg-dark-tertiary text-brand-text-primary dark:text-dark-text-primary font-semibold py-1.5 px-4 rounded-lg transition-colors duration-200 text-sm border border-brand-border dark:border-dark-border"
+                    className="flex items-center bg-brand-secondary dark:bg-dark-secondary hover:bg-brand-tertiary dark:hover:bg-dark-tertiary text-brand-text-primary dark:text-dark-text-primary font-semibold py-2 px-4 rounded-lg transition-colors duration-200 text-sm border border-brand-border dark:border-dark-border"
                 >
                     <ArrowPathIcon className="w-4 h-4 mr-2" />
                     Νέα Συνομιλία
@@ -138,7 +138,7 @@ const ChatDisplay: React.FC<ChatDisplayProps> = ({ history, onEdit, onRegenerate
                      <div className="flex-shrink-0 w-7 h-7 rounded-full bg-brand-secondary dark:bg-dark-secondary flex items-center justify-center border border-brand-border dark:border-dark-border">
                          <AiIcon className="w-5 h-5 text-brand-text-secondary dark:text-dark-text-secondary"/>
                      </div>
-                     <div className="px-3 py-2 rounded-2xl rounded-bl-lg bg-ai-bubble dark:bg-dark-ai-bubble">
+                     <div className="px-4 py-3 rounded-2xl rounded-bl-lg bg-ai-bubble dark:bg-dark-ai-bubble">
                         <div className="flex items-center gap-2 text-brand-text-secondary dark:text-dark-text-secondary">
                              <div className="w-2 h-2 bg-brand-text-tertiary dark:bg-dark-text-tertiary rounded-full animate-bounce [animation-delay:-0.3s]"></div>
                              <div className="w-2 h-2 bg-brand-text-tertiary dark:bg-dark-text-tertiary rounded-full animate-bounce [animation-delay:-0.15s]"></div>

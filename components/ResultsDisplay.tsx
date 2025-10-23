@@ -85,7 +85,7 @@ const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ analysis, onReset }) =>
   };
   
   const ArticleCard: React.FC<{ item: LegalArticle }> = ({ item }) => (
-    <div className="bg-brand-primary dark:bg-dark-secondary p-3 rounded-xl border border-brand-border dark:border-dark-border transition-all hover:shadow-md hover:border-brand-accent/50 dark:hover:border-dark-accent/50">
+    <div className="bg-brand-primary dark:bg-dark-secondary p-4 rounded-xl border border-brand-border dark:border-dark-border transition-all hover:shadow-md hover:border-brand-accent/50 dark:hover:border-dark-accent/50">
         {item.link ? (
              <a 
                 href={item.link} 
@@ -104,7 +104,7 @@ const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ analysis, onReset }) =>
   );
 
   return (
-    <div className="space-y-6 animate-fade-in" id="analysis-content-to-download">
+    <div className="space-y-8 animate-fade-in" id="analysis-content-to-download">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
              <div className="flex items-center gap-3">
                 <div className="p-2.5 bg-brand-accent/10 rounded-full">
@@ -117,7 +117,7 @@ const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ analysis, onReset }) =>
                     <p className="text-sm text-brand-text-secondary dark:text-dark-text-secondary">Ελέγξτε την περίληψη και τα σχετικά άρθρα παρακάτω.</p>
                 </div>
              </div>
-             <div className="flex space-x-2 w-full sm:w-auto self-end sm:self-center" id="action-buttons">
+             <div className="flex space-x-3 w-full sm:w-auto self-end sm:self-center" id="action-buttons">
                 <button
                     onClick={handleDownload}
                     className="flex-1 sm:flex-none flex items-center justify-center bg-brand-secondary dark:bg-dark-secondary hover:bg-brand-tertiary dark:hover:bg-dark-tertiary text-brand-text-primary dark:text-dark-text-primary font-semibold py-1.5 px-4 rounded-lg transition-colors duration-200 text-sm border border-brand-border dark:border-dark-border"
@@ -135,18 +135,18 @@ const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ analysis, onReset }) =>
              </div>
         </div>
 
-      <div className="bg-brand-secondary/50 dark:bg-dark-secondary/50 p-5 rounded-xl border border-brand-border dark:border-dark-border">
+      <div className="bg-brand-secondary/50 dark:bg-dark-secondary/50 p-6 rounded-xl border border-brand-border dark:border-dark-border">
         <h3 className="text-lg font-semibold mb-3 text-brand-text-primary dark:text-dark-text-primary">Περίληψη Υπόθεσης</h3>
         <MarkdownRenderer content={analysis.caseSummary} className="text-brand-text-secondary dark:text-dark-text-secondary prose max-w-none prose-chat prose-custom" />
       </div>
       
-      <div className="grid md:grid-cols-2 gap-6">
+      <div className="grid md:grid-cols-2 gap-8">
         <div>
           <h3 className="text-lg font-semibold mb-4 text-brand-text-primary dark:text-dark-text-primary flex items-center">
             <CheckBadgeIcon className="w-5 h-5 mr-2 text-accent-green dark:text-dark-accent-green" />
             Για τον Ενάγοντα / Κατήγορο
           </h3>
-          <div className="space-y-4">
+          <div className="space-y-5">
             {analysis.plaintiffArticles.map((item, index) => <ArticleCard key={`plaintiff-${index}`} item={item} />)}
           </div>
         </div>
@@ -155,7 +155,7 @@ const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ analysis, onReset }) =>
             <ShieldExclamationIcon className="w-5 h-5 mr-2 text-accent-orange dark:text-dark-accent-orange" />
             Για τον Εναγόμενο
           </h3>
-          <div className="space-y-4">
+          <div className="space-y-5">
             {analysis.defendantArticles.map((item, index) => <ArticleCard key={`defendant-${index}`} item={item} />)}
           </div>
         </div>

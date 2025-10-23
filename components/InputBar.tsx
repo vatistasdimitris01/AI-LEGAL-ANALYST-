@@ -48,28 +48,28 @@ const InputBar: React.FC<InputBarProps> = ({
     : "Ρωτήστε κάτι ή αναζητήστε ένα νόμο...";
 
   return (
-    <div className="relative w-full rounded-[28px] border border-brand-border dark:border-dark-border bg-brand-secondary dark:bg-dark-secondary shadow-lg px-3 sm:px-4 pt-4 pb-16">
-      <div className="relative z-10">
+    <div className="relative w-full rounded-[28px] border border-brand-border dark:border-dark-border bg-brand-secondary dark:bg-dark-secondary shadow-lg flex flex-col">
+      <div className="relative z-10 flex-grow px-4 pt-4">
         <textarea
           ref={textareaRef}
           value={value}
           onChange={(e) => onValueChange(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder={placeholderText}
-          className="w-full bg-transparent focus:outline-none text-brand-text-primary dark:text-dark-text-primary placeholder-brand-text-secondary dark:placeholder-dark-text-secondary resize-none overflow-y-auto px-2"
+          className="w-full bg-transparent focus:outline-none text-brand-text-primary dark:text-dark-text-primary placeholder-brand-text-secondary dark:placeholder-dark-text-secondary resize-none overflow-y-auto"
           style={{ minHeight: '44px', maxHeight: '150px' }}
           rows={1}
           disabled={isLoading}
         />
         {fileName && (
-          <div className="mt-2 text-sm text-brand-text-secondary dark:text-dark-text-secondary flex items-center bg-input-bg dark:bg-dark-input-bg px-3 py-1 rounded-full w-fit ml-2">
+          <div className="mt-2 text-sm text-brand-text-secondary dark:text-dark-text-secondary flex items-center bg-input-bg dark:bg-dark-input-bg px-3 py-1 rounded-full w-fit">
             <PaperClipIcon className="w-4 h-4 mr-2" />
             <span>{fileName}</span>
           </div>
         )}
       </div>
 
-      <div className="absolute inset-x-0 bottom-0 flex items-center gap-2 px-3 sm:px-4 py-3">
+      <div className="flex items-center gap-3 px-4 pb-3 pt-1">
           <label
             htmlFor="file-upload"
             className="group inline-flex items-center justify-center h-10 w-10 rounded-full bg-transparent hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer transition-colors"
