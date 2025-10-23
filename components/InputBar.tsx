@@ -1,52 +1,5 @@
-import React, { useRef, useState, useEffect, useLayoutEffect } from 'react';
-import { PlusIcon, ArrowUpIcon, PaperClipIcon, MicrophoneIcon, ChatBubbleIcon, ScaleIcon } from './icons/Icons';
-
-// Fix: Add type definitions for the Web Speech API to resolve TypeScript errors.
-// These APIs are not yet part of the standard TypeScript DOM typings.
-interface SpeechRecognitionEvent extends Event {
-  readonly resultIndex: number;
-  readonly results: SpeechRecognitionResultList;
-}
-
-interface SpeechRecognitionResultList {
-  readonly length: number;
-  item(index: number): SpeechRecognitionResult;
-  [index: number]: SpeechRecognitionResult;
-}
-
-interface SpeechRecognitionResult {
-  readonly isFinal: boolean;
-  readonly length: number;
-  item(index: number): SpeechRecognitionAlternative;
-  [index: number]: SpeechRecognitionAlternative;
-}
-
-interface SpeechRecognitionAlternative {
-  readonly transcript: string;
-  readonly confidence: number;
-}
-
-interface SpeechRecognitionErrorEvent extends Event {
-  readonly error: string;
-}
-
-interface SpeechRecognition extends EventTarget {
-  continuous: boolean;
-  interimResults: boolean;
-  lang: string;
-  onresult: ((this: SpeechRecognition, ev: SpeechRecognitionEvent) => any) | null;
-  onend: ((this: SpeechRecognition, ev: Event) => any) | null;
-  onerror: ((this: SpeechRecognition, ev: SpeechRecognitionErrorEvent) => any) | null;
-  start(): void;
-  stop(): void;
-}
-
-declare global {
-  interface Window {
-    SpeechRecognition: { new (): SpeechRecognition };
-    webkitSpeechRecognition: { new (): SpeechRecognition };
-  }
-}
+import React, { useRef, useLayoutEffect } from 'react';
+import { PlusIcon, ArrowUpIcon, PaperClipIcon, ChatBubbleIcon, ScaleIcon } from './icons/Icons';
 
 interface InputBarProps {
   value: string;
@@ -71,8 +24,6 @@ const InputBar: React.FC<InputBarProps> = ({
   mode,
   onModeChange,
 }) => {
-  const [isListening, setIsListening] = useState(false);
-  const recognitionRef = useRef<SpeechRecognition | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useLayoutEffect(() => {
@@ -82,49 +33,6 @@ const InputBar: React.FC<InputBarProps> = ({
       textarea.style.height = `${Math.max(textarea.scrollHeight, 44)}px`;
     }
   }, [value]);
-
-  useEffect(() => {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (SpeechRecognition) {
-      const recognition = new SpeechRecognition();
-      recognition.continuous = true;
-      recognition.interimResults = true;
-      recognition.lang = 'el-GR';
-
-      recognition.onresult = (event) => {
-        let finalTranscript = '';
-        for (let i = event.resultIndex; i < event.results.length; ++i) {
-          if (event.results[i].isFinal) {
-            finalTranscript += event.results[i][0].transcript;
-          }
-        }
-        onValueChange(currentValue => currentValue + finalTranscript);
-      };
-
-      recognition.onend = () => {
-        setIsListening(false);
-      };
-      
-      recognition.onerror = (event) => {
-        console.error('Speech recognition error', event.error);
-        setIsListening(false);
-      };
-
-      recognitionRef.current = recognition;
-    }
-  }, [onValueChange]);
-
-  const handleMicClick = () => {
-    const recognition = recognitionRef.current;
-    if (!recognition) return;
-
-    if (isListening) {
-      recognition.stop();
-    } else {
-      recognition.start();
-    }
-    setIsListening(!isListening);
-  };
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (event.key === 'Enter' && !event.shiftKey) {
@@ -189,15 +97,6 @@ const InputBar: React.FC<InputBarProps> = ({
             {mode === 'case' 
               ? <ChatBubbleIcon className="w-5 h-5 text-brand-text-secondary dark:text-dark-text-secondary group-hover:text-brand-text-primary dark:group-hover:text-dark-text-primary" /> 
               : <ScaleIcon className="w-5 h-5 text-brand-text-secondary dark:text-dark-text-secondary group-hover:text-brand-text-primary dark:group-hover:text-dark-text-primary" />}
-          </button>
-
-          <button
-            onClick={handleMicClick}
-            disabled={isLoading || !recognitionRef.current}
-            className={`group inline-flex items-center justify-center h-10 w-10 rounded-full bg-transparent disabled:opacity-60 transition-colors ${isListening ? 'bg-brand-accent/10 dark:bg-dark-accent/10' : 'hover:bg-slate-100 dark:hover:bg-slate-700'}`}
-            aria-label={isListening ? 'Διακοπή ακρόασης' : 'Έναρξη ακρόασης'}
-          >
-            <MicrophoneIcon className={`w-5 h-5 transition-colors ${isListening ? 'text-brand-accent dark:text-dark-accent' : 'text-brand-text-secondary dark:text-dark-text-secondary group-hover:text-brand-text-primary dark:group-hover:text-dark-text-primary'}`} />
           </button>
         
         <div className="ml-auto">
