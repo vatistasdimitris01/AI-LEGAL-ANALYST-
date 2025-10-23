@@ -45,7 +45,7 @@ const Message: React.FC<MessageProps> = ({ message, isLastMessage, onEdit, onReg
     const bubbleClass = isUser 
       ? 'bg-user-bubble dark:bg-dark-user-bubble rounded-br-lg' 
       : 'bg-ai-bubble dark:bg-dark-ai-bubble rounded-bl-lg';
-    const textClass = isUser ? 'dark:prose-chat-user-dark' : '';
+    const textClass = isUser ? 'prose-chat-user-inverted' : '';
 
 
     return (
