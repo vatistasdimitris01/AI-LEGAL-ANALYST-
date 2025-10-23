@@ -15,7 +15,7 @@ const MarkdownRenderer: React.FC<{ content: string }> = ({ content }) => {
     if (!content) return null;
     const rawMarkup = marked.parse(content);
     const sanitizedMarkup = DOMPurify.sanitize(rawMarkup);
-    return <div className="prose law-library-results max-w-none" dangerouslySetInnerHTML={{ __html: sanitizedMarkup }} />;
+    return <div className="prose prose-custom max-w-none" dangerouslySetInnerHTML={{ __html: sanitizedMarkup }} />;
 };
 
 const LawLibrary: React.FC = () => {
@@ -63,13 +63,13 @@ const LawLibrary: React.FC = () => {
     };
 
     return (
-        <div className="w-full space-y-8 animate-fade-in">
+        <div className="w-full space-y-6 animate-fade-in">
             <div className="text-center pt-4 animate-slide-up">
-                <div className="inline-block p-4 bg-brand-accent/10 rounded-full">
-                    <BookOpenIcon className="w-12 h-12 mx-auto text-brand-accent" />
+                <div className="inline-block p-3 bg-brand-accent/10 rounded-full">
+                    <BookOpenIcon className="w-8 h-8 sm:w-10 sm:w-10 mx-auto text-brand-accent" />
                 </div>
-                <h2 className="text-3xl font-bold mt-4 mb-2 text-brand-text-primary dark:text-dark-text-primary">Νομική Βιβλιοθήκη</h2>
-                <p className="text-brand-text-secondary dark:text-dark-text-secondary max-w-xl mx-auto">
+                <h2 className="text-2xl sm:text-3xl font-bold mt-4 mb-2 text-brand-text-primary dark:text-dark-text-primary">Νομική Βιβλιοθήκη</h2>
+                <p className="text-sm text-brand-text-secondary dark:text-dark-text-secondary max-w-xl mx-auto">
                     Εξερευνήστε βασικά άρθρα ή αναζητήστε συγκεκριμένους νόμους και κώδικες.
                 </p>
             </div>
@@ -80,23 +80,28 @@ const LawLibrary: React.FC = () => {
                         type="text"
                         value={query}
                         onChange={(e) => setQuery(e.target.value)}
-                        placeholder="άρθρο 1507"
-                        className="w-full px-5 py-3 bg-brand-secondary dark:bg-dark-secondary border border-brand-border dark:border-dark-border rounded-full focus:outline-none focus:ring-2 focus:ring-brand-accent dark:focus:ring-dark-accent shadow-sm"
+                        placeholder="Αναζήτηση για 'άρθρο 1507'..."
+                        className="w-full px-4 py-2.5 bg-brand-primary dark:bg-dark-secondary border border-brand-border dark:border-dark-border rounded-full focus:outline-none focus:ring-2 focus:ring-brand-accent dark:focus:ring-dark-accent shadow-sm"
                     />
                     <button
                         type="submit"
                         disabled={isLoading}
-                        className="px-6 py-3 bg-brand-dark text-white font-semibold rounded-full hover:bg-brand-dark-hover transition-colors disabled:opacity-50 flex-shrink-0 shadow-sm"
+                        className="px-5 py-2.5 bg-brand-dark text-white font-semibold rounded-full hover:bg-brand-dark-hover transition-colors disabled:opacity-50 flex-shrink-0 shadow-sm"
                     >
                         {isLoading ? '...' : 'Αναζήτηση'}
                     </button>
                 </form>
 
                 <div className="mt-8">
-                    {isLoading && <p className="text-center text-brand-text-secondary dark:text-dark-text-secondary py-4">Αναζήτηση σε εξέλιξη...</p>}
-                    {error && <p className="text-center text-red-500 dark:text-red-400 text-sm py-4">{error}</p>}
+                    {isLoading && (
+                        <div className="flex items-center justify-center text-brand-text-secondary dark:text-dark-text-secondary py-4">
+                             <div className="w-4 h-4 border-2 border-brand-text-tertiary border-t-transparent rounded-full animate-spin mr-2"></div>
+                             Αναζήτηση σε εξέλιξη...
+                        </div>
+                    )}
+                    {error && <p className="text-center text-accent-red dark:text-dark-accent-red text-sm py-4">{error}</p>}
                     {parsedResult && parsedResult.mainContent && (
-                        <div className="bg-brand-secondary dark:bg-dark-secondary p-6 sm:p-8 rounded-2xl border border-brand-border dark:border-dark-border shadow-sm animate-fade-in">
+                        <div className="bg-brand-primary dark:bg-dark-secondary p-5 sm:p-6 rounded-2xl border border-brand-border dark:border-dark-border shadow-sm animate-fade-in">
                              <MarkdownRenderer content={parsedResult.mainContent} />
                              {parsedResult.sourceUrl && (
                                  <div className="mt-6 pt-4 border-t border-brand-border dark:border-dark-border">
@@ -105,7 +110,7 @@ const LawLibrary: React.FC = () => {
                                         href={parsedResult.sourceUrl} 
                                         target="_blank" 
                                         rel="noopener noreferrer" 
-                                        className="flex items-center gap-3 bg-slate-50 dark:bg-slate-700/50 hover:bg-slate-100 dark:hover:bg-slate-700 p-3 rounded-lg border border-brand-border dark:border-dark-border transition-colors w-full"
+                                        className="flex items-center gap-3 bg-brand-secondary/50 dark:bg-dark-tertiary/50 hover:bg-brand-secondary dark:hover:bg-dark-tertiary p-2.5 rounded-lg border border-brand-border dark:border-dark-border transition-colors w-full"
                                      >
                                         <LinkIcon className="w-5 h-5 text-brand-accent dark:text-dark-accent flex-shrink-0" />
                                         <span className="text-brand-accent dark:text-dark-accent font-semibold truncate text-sm">{parsedResult.sourceDomain}</span>

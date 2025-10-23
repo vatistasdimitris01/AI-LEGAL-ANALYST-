@@ -31,14 +31,14 @@
             colors: {
               // 🌞 Light Mode
               'brand-primary': '#FFFFFF',
-              'brand-secondary': '#E6E6E6',
-              'brand-tertiary': '#F3F3F3',
+              'brand-secondary': '#F3F3F3', // Was #E6E6E6, lightened for subtlety
+              'brand-tertiary': '#E6E6E6', // Was #F3F3F3
               'brand-accent': '#265FFF',
               'brand-accent-dark': '#1F4BCC',
               'brand-text-primary': '#0D0D0D',
               'brand-text-secondary': '#505050',
               'brand-text-tertiary': '#BFBFBF',
-              'brand-text-inverted': '#F3F3F3',
+              'brand-text-inverted': '#FFFFFF', // Inverted text on accent bg
               'brand-border': '#E6E6E6',
               'brand-dark': '#0D0D0D',
               'brand-dark-hover': '#333333',
@@ -51,15 +51,15 @@
               
               // 🌚 Dark Mode
               'dark-primary': '#121212',
-              'dark-secondary': '#383838',
-              'dark-tertiary': '#414141',
+              'dark-secondary': '#1E1E1E', // Darkened for card backgrounds
+              'dark-tertiary': '#383838',
               'dark-accent': '#265FFF',
               'dark-accent-dark': '#598BFF',
               'dark-text-primary': '#FFFFFF',
-              'dark-text-secondary': '#C0C0C0',
+              'dark-text-secondary': '#AFAFAF', // Lightened for better contrast
               'dark-text-tertiary': '#AFAFAF',
-              'dark-text-inverted': '#121212',
-              'dark-border': '#414141',
+              'dark-text-inverted': '#FFFFFF', // Inverted text on accent bg
+              'dark-border': '#383838',
               'dark-user-bubble': '#265FFF',
               'dark-ai-bubble': '#383838',
               'dark-input-bg': '#383838',
@@ -78,79 +78,60 @@
                 '0%': { transform: 'translateY(10px)', opacity: 0 },
                 '100%': { transform: 'translateY(0)', opacity: 1 },
               }
+            },
+            backdropBlur: {
+              'sm': '4px',
             }
           }
         }
       }
     </script>
     <style>
-      /* Custom styles for Law Library and Chat Display */
-      .law-library-results .prose h2 {
-        font-size: 1rem;
-        font-weight: 600;
-        margin-bottom: 0.25rem;
-        color: #505050;
-      }
-      .dark .law-library-results .prose h2 { color: #C0C0C0; }
+      /* --- PROSE STYLES FOR MARKDOWN CONTENT --- */
+      .prose-custom h2 { color: #505050; }
+      .dark .prose-custom h2 { color: #C0C0C0; }
+      .prose-custom h3 { color: #0D0D0D; }
+      .dark .prose-custom h3 { color: #FFFFFF; }
+      .prose-custom p, .prose-custom li { color: #505050; }
+      .dark .prose-custom p, .dark .prose-custom li { color: #C0C0C0; }
+      .prose-custom a { color: #265FFF; }
+      .dark .prose-custom a { color: #598BFF; }
+      .prose-custom strong { color: #0D0D0D; }
+      .dark .prose-custom strong { color: #FFFFFF; }
       
-      .law-library-results .prose h3 {
-        font-size: 1.125rem;
-        font-weight: 700;
-        margin-bottom: 1rem;
-        color: #0D0D0D;
-      }
-      .dark .law-library-results .prose h3 { color: #FFFFFF; }
-
-      .law-library-results .prose p,
-      .law-library-results .prose li { margin-top: 0.5rem; line-height: 1.6; color: #505050; }
-      .dark .law-library-results .prose p,
-      .dark .law-library-results .prose li { color: #C0C0C0; }
-
-      .law-library-results .prose a { color: #265FFF; font-weight: 600; }
-      .dark .law-library-results .prose a { color: #598BFF; }
-      .law-library-results .prose a:hover { text-decoration: underline; }
-
-      .law-library-results .prose strong { color: #0D0D0D; }
-      .dark .law-library-results .prose strong { color: #FFFFFF; }
-
-       .prose-chat p { margin-top: 0; margin-bottom: 0.75rem; }
-       .prose-chat p:last-child { margin-bottom: 0; }
-       .prose-chat strong { color: #0D0D0D; }
-       .dark .prose-chat strong { color: #FFFFFF; }
-       .prose-chat a { color: #265FFF; }
-       .dark .prose-chat a { color: #598BFF; }
+      /* Base chat prose styles */
+      .prose-chat p { margin-top: 0; margin-bottom: 0.75rem; }
+      .prose-chat p:last-child { margin-bottom: 0; }
+      .prose-chat strong { color: inherit; }
+      .prose-chat a { color: #265FFF; }
+      .dark .prose-chat a { color: #598BFF; }
        
-       /* Styles for user bubble with inverted text */
-       .prose-chat-user-inverted, .prose-chat-user-inverted p {
-           color: #F3F3F3; /* Text / Inverted Light */
-       }
-       .prose-chat-user-inverted strong {
-           color: #FFFFFF;
-       }
-       .prose-chat-user-inverted a {
-           color: #FFFFFF;
-           text-decoration: underline;
-       }
-       .dark .prose-chat-user-inverted, .dark .prose-chat-user-inverted p {
-           color: #121212; /* Text / Inverted Dark */
-       }
-       .dark .prose-chat-user-inverted strong {
-           color: #000000;
-       }
-       .dark .prose-chat-user-inverted a {
-           color: #FFFFFF;
-           text-decoration: underline;
-       }
-
-
+      /* User bubble inverted text styles */
+      .prose-chat-user-inverted, .prose-chat-user-inverted p {
+          color: #FFFFFF;
+      }
+      .prose-chat-user-inverted a {
+          color: #FFFFFF;
+          text-decoration: underline;
+      }
+       
       /* Custom Scrollbar */
       ::-webkit-scrollbar { width: 8px; }
-      ::-webkit-scrollbar-track { background: #E6E6E6; }
-      .dark ::-webkit-scrollbar-track { background: #383838; }
+      ::-webkit-scrollbar-track { background: #F3F3F3; }
+      .dark ::-webkit-scrollbar-track { background: #1E1E1E; }
       ::-webkit-scrollbar-thumb { background: #BFBFBF; border-radius: 4px; }
-      .dark ::-webkit-scrollbar-thumb { background: #AFAFAF; }
-      ::-webkit-scrollbar-thumb:hover { background: #505050; }
-      .dark ::-webkit-scrollbar-thumb:hover { background: #C0C0C0; }
+      .dark ::-webkit-scrollbar-thumb { background: #414141; }
+      ::-webkit-scrollbar-thumb:hover { background: #AFAFAF; }
+      .dark ::-webkit-scrollbar-thumb:hover { background: #505050; }
+
+      /* Custom Scrollbar hide */
+      .scrollbar-hide::-webkit-scrollbar {
+        display: none;
+      }
+      .scrollbar-hide {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
 
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>

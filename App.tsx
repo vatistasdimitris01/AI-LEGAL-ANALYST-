@@ -4,7 +4,7 @@ import { type AnalysisResult, type ChatMessage } from './types';
 import InputBar from './components/InputBar';
 import ResultsDisplay from './components/ResultsDisplay';
 import CountryModal from './components/CountryModal';
-import { ScaleIcon, SparklesIcon, DocumentTextIcon, BookOpenIcon, LogoIcon, MenuIcon, XIcon, SunIcon, MoonIcon } from './components/icons/Icons';
+import { ScaleIcon, SparklesIcon, DocumentTextIcon, BookOpenIcon, LogoIcon, MenuIcon, XIcon, SunIcon, MoonIcon, ChatBubbleIcon } from './components/icons/Icons';
 import LoadingSpinner from './components/LoadingSpinner';
 import LawLibrary from './components/LawSearch';
 import ChatDisplay from './components/ChatDisplay';
@@ -250,23 +250,49 @@ const App: React.FC = () => {
   }
 
   const NavLinks: React.FC<{ isMobile?: boolean }> = ({ isMobile }) => (
-    <nav className={`flex items-center ${isMobile ? 'flex-col space-y-2 pt-6' : 'space-x-1'}`}>
+    <nav className={`flex ${isMobile ? 'flex-col space-y-2 pt-6' : 'items-center bg-brand-secondary dark:bg-dark-secondary p-1 rounded-full'}`}>
       <button 
           onClick={() => handleSetView('analysis')}
-          className={`px-3 sm:px-4 py-2 text-sm sm:text-base font-semibold rounded-lg transition-colors flex items-center gap-2 w-full ${currentView === 'analysis' ? 'bg-brand-accent text-white' : 'text-brand-text-secondary hover:bg-slate-100 dark:hover:bg-slate-700 dark:text-dark-text-secondary'}`}
+          className={`px-3 py-1.5 text-sm font-semibold rounded-full transition-colors flex items-center gap-2 w-full ${currentView === 'analysis' ? 'bg-brand-primary dark:bg-dark-primary shadow-sm text-brand-text-primary dark:text-dark-text-primary' : 'text-brand-text-secondary hover:text-brand-text-primary dark:hover:text-dark-text-primary'}`}
       >
           <ScaleIcon className="w-5 h-5" />
           Ανάλυση
       </button>
       <button 
           onClick={() => handleSetView('library')}
-          className={`px-3 sm:px-4 py-2 text-sm sm:text-base font-semibold rounded-lg transition-colors flex items-center gap-2 w-full ${currentView === 'library' ? 'bg-brand-accent text-white' : 'text-brand-text-secondary hover:bg-slate-100 dark:hover:bg-slate-700 dark:text-dark-text-secondary'}`}
+          className={`px-3 py-1.5 text-sm font-semibold rounded-full transition-colors flex items-center gap-2 w-full ${currentView === 'library' ? 'bg-brand-primary dark:bg-dark-primary shadow-sm text-brand-text-primary dark:text-dark-text-primary' : 'text-brand-text-secondary hover:text-brand-text-primary dark:hover:text-dark-text-primary'}`}
       >
           <BookOpenIcon className="w-5 h-5"/>
           Βιβλιοθήκη
       </button>
     </nav>
   );
+  
+  const FeatureCard: React.FC<{ icon: React.ReactNode, title: string, description: string, className?: string }> = ({ icon, title, description, className }) => (
+      <div className={`bg-brand-secondary dark:bg-dark-secondary p-5 rounded-2xl border border-brand-border dark:border-dark-border text-center flex flex-col items-center ${className}`}>
+          <div className="mb-3 text-brand-accent">{icon}</div>
+          <h3 className="font-bold text-base mb-2 text-brand-text-primary dark:text-dark-text-primary">{title}</h3>
+          <p className="text-xs text-brand-text-secondary dark:text-dark-text-secondary">{description}</p>
+      </div>
+  );
+
+  const features = [
+    { 
+      icon: <ScaleIcon className="w-7 h-7"/>, 
+      title: "Ανάλυση Υπόθεσης",
+      description: "Ανεβάστε ή επικολλήστε κείμενο για να λάβετε μια λεπτομερή νομική ανάλυση."
+    },
+    { 
+      icon: <ChatBubbleIcon className="w-7 h-7"/>, 
+      title: "Συνομιλία με AI",
+      description: "Κάντε ερωτήσεις, ζητήστε διευκρινήσεις ή συζητήστε νομικά θέματα."
+    },
+    { 
+      icon: <BookOpenIcon className="w-7 h-7"/>, 
+      title: "Νομική Βιβλιοθήκη",
+      description: "Αναζητήστε συγκεκριμένα άρθρα, νόμους και νομικούς κώδικες."
+    }
+  ];
 
   const isProcessingUrl = isFetchingUrl || isFormattingCase;
   const isInputLoading = isLoading || isProcessingUrl || isProcessingImage;
@@ -275,15 +301,15 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen flex flex-col font-sans">
-      <header className="w-full p-4 border-b border-brand-border dark:border-dark-border bg-brand-secondary/80 dark:bg-dark-secondary/80 backdrop-blur-sm sticky top-0 z-20">
+      <header className="w-full p-3 border-b border-brand-border/80 dark:border-dark-border/80 bg-brand-primary/80 dark:bg-dark-primary/80 backdrop-blur-sm sticky top-0 z-20">
         <div className="container mx-auto flex items-center justify-between">
             <div className="flex items-center gap-2">
                 <button onClick={() => setIsSidebarOpen(true)} className="p-2 md:hidden text-brand-text-secondary hover:text-brand-text-primary dark:text-dark-text-secondary dark:hover:text-dark-text-primary -ml-2">
                     <MenuIcon className="w-6 h-6" />
                 </button>
-                <div className="flex items-center">
-                    <LogoIcon className="h-8 w-8 text-brand-text-primary dark:text-dark-text-primary mr-3" />
-                    <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-brand-text-primary dark:text-dark-text-primary">
+                <div className="flex items-center gap-3">
+                    <LogoIcon className="h-7 w-7 text-brand-text-primary dark:text-dark-text-primary" />
+                    <h1 className="text-lg font-bold tracking-tight text-brand-text-primary dark:text-dark-text-primary hidden sm:block">
                       AI Legal Analyst
                     </h1>
                 </div>
@@ -294,7 +320,7 @@ const App: React.FC = () => {
             <div className="flex items-center">
                <button 
                   onClick={toggleTheme} 
-                  className="p-2 rounded-full text-brand-text-secondary hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                  className="p-2 rounded-full text-brand-text-secondary hover:text-brand-text-primary dark:text-dark-text-secondary dark:hover:text-dark-text-primary hover:bg-brand-secondary dark:hover:bg-dark-secondary transition-colors"
                   aria-label="Toggle theme"
                 >
                   {theme === 'light' ? <MoonIcon className="w-5 h-5" /> : <SunIcon className="w-5 h-5" />}
@@ -306,13 +332,13 @@ const App: React.FC = () => {
       {isSidebarOpen && (
         <div className="fixed inset-0 z-40 md:hidden">
             <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setIsSidebarOpen(false)}></div>
-            <div className="relative z-10 bg-brand-secondary dark:bg-dark-secondary w-72 h-full shadow-xl p-4 animate-fade-in">
+            <div className="relative z-10 bg-brand-primary dark:bg-dark-primary w-72 h-full shadow-xl p-4 animate-fade-in">
                 <div className="flex justify-between items-center mb-4">
-                    <div className="flex items-center">
-                        <LogoIcon className="h-7 w-7 text-brand-text-primary dark:text-dark-text-primary mr-2" />
+                    <div className="flex items-center gap-2">
+                        <LogoIcon className="h-7 w-7 text-brand-text-primary dark:text-dark-text-primary" />
                         <h2 className="text-lg font-bold">AI Legal Analyst</h2>
                     </div>
-                    <button onClick={() => setIsSidebarOpen(false)} className="p-2 text-brand-text-secondary hover:text-brand-text-primary dark:text-dark-text-secondary dark:hover:text-dark-text-primary">
+                    <button onClick={() => setIsSidebarOpen(false)} className="p-2 -mr-2 text-brand-text-secondary hover:text-brand-text-primary dark:text-dark-text-secondary dark:hover:text-dark-text-primary">
                         <XIcon className="w-6 h-6" />
                     </button>
                 </div>
@@ -321,7 +347,7 @@ const App: React.FC = () => {
         </div>
       )}
 
-      <main className="flex-grow container mx-auto p-4 md:p-6 lg:p-8 w-full max-w-4xl relative">
+      <main className="flex-grow container mx-auto p-3 md:p-4 lg:p-6 w-full max-w-4xl relative">
         {currentView === 'analysis' && (
           <div className={showInputBar ? 'pb-40' : ''}>
             {isLoading && chatHistory.length === 0 && <LoadingSpinner />}
@@ -332,14 +358,27 @@ const App: React.FC = () => {
               </div>
             )}
             {showWelcome && (
-              <div className="text-center pt-16 space-y-4 animate-slide-up">
-                <div className="inline-block p-4 bg-brand-accent/10 rounded-full">
-                   <SparklesIcon className="h-12 w-12 mx-auto text-brand-accent" />
-                </div>
-                <h2 className="text-3xl font-bold mb-2 text-brand-text-primary dark:text-dark-text-primary">Ξεκινήστε την Ανάλυση</h2>
-                <p className="text-brand-text-secondary dark:text-dark-text-secondary max-w-xl mx-auto">
-                  Επιλέξτε τη λειτουργία "Ανάλυση Υπόθεσης" ή "Συνομιλία" από την μπάρα εισαγωγής παρακάτω.
-                </p>
+              <div className="text-center pt-6 sm:pt-12 space-y-10 animate-slide-up">
+                  <div className="space-y-4">
+                    <div className="inline-block p-3 bg-brand-accent/10 rounded-full">
+                       <SparklesIcon className="h-8 w-8 sm:h-10 sm:w-10 mx-auto text-brand-accent" />
+                    </div>
+                    <h2 className="text-2xl sm:text-3xl font-bold mb-2 text-brand-text-primary dark:text-dark-text-primary">Ξεκινήστε την Ανάλυση</h2>
+                    <p className="text-sm text-brand-text-secondary dark:text-dark-text-secondary max-w-xl mx-auto">
+                      Ένας βοηθός AI για γρήγορη νομική ανάλυση, συνομιλία και αναζήτηση στη βιβλιοθήκη.
+                    </p>
+                  </div>
+                  <div className="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-4 -mx-4 px-4 scrollbar-hide sm:mx-0 sm:px-0 sm:grid sm:grid-cols-3 sm:overflow-visible sm:pb-0 max-w-3xl mx-auto">
+                      {features.map((feature, index) => (
+                        <FeatureCard 
+                          key={index}
+                          icon={feature.icon} 
+                          title={feature.title}
+                          description={feature.description}
+                          className="w-[80vw] max-w-xs flex-shrink-0 snap-center sm:w-auto"
+                        />
+                      ))}
+                  </div>
               </div>
             )}
             {analysis && <ResultsDisplay analysis={analysis} onReset={handleReset} />}
@@ -362,14 +401,14 @@ const App: React.FC = () => {
                 </button>
               )}
               {isProcessingUrl && (
-                  <div className="bg-slate-200 dark:bg-slate-700 text-brand-text-secondary dark:text-dark-text-secondary font-semibold py-2 px-5 rounded-full mb-2 shadow-lg flex items-center animate-fade-in">
-                      <div className="w-4 h-4 border-2 border-slate-400 dark:border-slate-500 border-t-transparent rounded-full animate-spin mr-2"></div>
+                  <div className="bg-brand-secondary dark:bg-dark-secondary text-brand-text-secondary dark:text-dark-text-secondary font-semibold py-2 px-5 rounded-full mb-2 shadow-lg flex items-center animate-fade-in">
+                      <div className="w-4 h-4 border-2 border-brand-text-tertiary border-t-transparent rounded-full animate-spin mr-2"></div>
                       {isFetchingUrl ? 'Ανάκτηση περιεχομένου...' : 'Διαμόρφωση υπόθεσης...'}
                   </div>
               )}
               {isProcessingImage && (
-                  <div className="bg-slate-200 dark:bg-slate-700 text-brand-text-secondary dark:text-dark-text-secondary font-semibold py-2 px-5 rounded-full mb-2 shadow-lg flex items-center animate-fade-in">
-                      <div className="w-4 h-4 border-2 border-slate-400 dark:border-slate-500 border-t-transparent rounded-full animate-spin mr-2"></div>
+                  <div className="bg-brand-secondary dark:bg-dark-secondary text-brand-text-secondary dark:text-dark-text-secondary font-semibold py-2 px-5 rounded-full mb-2 shadow-lg flex items-center animate-fade-in">
+                      <div className="w-4 h-4 border-2 border-brand-text-tertiary border-t-transparent rounded-full animate-spin mr-2"></div>
                       Επεξεργασία εικόνας...
                   </div>
               )}
