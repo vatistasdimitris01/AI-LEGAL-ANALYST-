@@ -9,10 +9,11 @@ import {
   SparklesIcon,
   ArrowPathIcon
 } from './icons/Icons';
+import { ROBOTO_REGULAR_BASE64 } from './fonts/RobotoRegular';
+import { ROBOTO_BOLD_BASE64 } from './fonts/RobotoBold';
 
 declare const marked: any;
 declare const DOMPurify: any;
-declare const html2canvas: any;
 declare const jspdf: any;
 
 const MarkdownRenderer: React.FC<{ content: string, className?: string }> = ({ content, className }) => {
@@ -63,49 +64,100 @@ const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ result, onRefine, onSta
     };
     
     const handleDownload = () => {
-        const input = analysisContentRef.current;
-        if (!input) {
+        if (!result) {
             console.error("Downloadable content not found!");
             return;
         }
 
-        const buttons = input.querySelector('#action-buttons');
-        if (buttons) (buttons as HTMLElement).style.display = 'none';
+        const { jsPDF } = jspdf;
+        const doc = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' });
+        
+        // --- FONT SETUP ---
+        doc.addFileToVFS('Roboto-Regular.ttf', ROBOTO_REGULAR_BASE64);
+        doc.addFont('Roboto-Regular.ttf', 'Roboto', 'normal');
+        doc.addFileToVFS('Roboto-Bold.ttf', ROBOTO_BOLD_BASE64);
+        doc.addFont('Roboto-Bold.ttf', 'Roboto', 'bold');
+        
+        // --- HELPERS ---
+        const cleanTextForPdf = (md: string): string => {
+            if (!md) return '';
+            return md
+                .replace(/\*\*(.*?)\*\*/g, '$1') // bold
+                .replace(/_(.*?)_/g, '$1')     // italic
+                .replace(/#+\s(.*?)\n/g, '')  // headers
+                .replace(/\[(.*?)\]\((.*?)\)/g, '$1') // links
+                .replace(/^\s*[\-\*]\s/gm, '• ') // list items
+                .replace(/<\/?[^>]+(>|$)/g, ""); // strip html tags
+        };
 
-        html2canvas(input, {
-            scale: 2,
-            useCORS: true,
-            backgroundColor: '#ffffff',
-             onclone: (clonedDoc: Document) => {
-                clonedDoc.documentElement.classList.remove('dark');
+        const margin = 40;
+        const pageHeight = doc.internal.pageSize.getHeight();
+        const pageWidth = doc.internal.pageSize.getWidth();
+        const usableWidth = pageWidth - 2 * margin;
+        let y = margin;
+
+        const checkPageBreak = (heightNeeded: number) => {
+            if (y + heightNeeded > pageHeight - margin) {
+                doc.addPage();
+                y = margin;
             }
-        }).then(canvas => {
-            if (buttons) (buttons as HTMLElement).style.display = 'flex';
+        };
 
-            const imgData = canvas.toDataURL('image/png');
-            const pdf = new jspdf.jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' });
-            const pdfWidth = pdf.internal.pageSize.getWidth();
-            const pdfHeight = pdf.internal.pageSize.getHeight();
-            const ratio = canvas.height / canvas.width;
-            const imgWidth = pdfWidth - 40;
-            const imgHeight = imgWidth * ratio;
-            let heightLeft = imgHeight;
-            let position = 20;
+        const renderArticle = (item: LegalArticle) => {
+            doc.setFont('Roboto', 'bold');
+            doc.setFontSize(12);
+            const titleLines = doc.splitTextToSize(item.article, usableWidth);
+            checkPageBreak(titleLines.length * 14 + 15);
+            doc.text(titleLines, margin, y);
+            y += titleLines.length * 14 + 5;
 
-            pdf.addImage(imgData, 'PNG', 20, position, imgWidth, imgHeight);
-            heightLeft -= (pdfHeight - 40);
+            doc.setFont('Roboto', 'normal');
+            doc.setFontSize(10);
+            const reasoningText = cleanTextForPdf(item.reasoning);
+            const reasoningLines = doc.splitTextToSize(reasoningText, usableWidth);
+            checkPageBreak(reasoningLines.length * 12 + 20);
+            doc.text(reasoningLines, margin, y);
+            y += reasoningLines.length * 12 + 20;
+        };
 
-            while (heightLeft > 0) {
-                position = -heightLeft - 20;
-                pdf.addPage();
-                pdf.addImage(imgData, 'PNG', 20, position, imgWidth, imgHeight);
-                heightLeft -= (pdfHeight - 40);
-            }
-            pdf.save('ai-νομική-ανάλυση.pdf');
-        }).catch(err => {
-            console.error("Failed to generate PDF:", err);
-            if (buttons) (buttons as HTMLElement).style.display = 'flex';
-        });
+        // --- PDF CONTENT ---
+        // Title
+        doc.setFont('Roboto', 'bold');
+        doc.setFontSize(20);
+        doc.text("AI Νομική Ανάλυση", pageWidth / 2, y, { align: 'center' });
+        y += 40;
+
+        // Case Summary
+        doc.setFont('Roboto', 'bold');
+        doc.setFontSize(14);
+        doc.text("Περίληψη Υπόθεσης", margin, y);
+        y += 20;
+
+        doc.setFont('Roboto', 'normal');
+        doc.setFontSize(10);
+        const summaryText = cleanTextForPdf(result.caseSummary);
+        const summaryLines = doc.splitTextToSize(summaryText, usableWidth);
+        doc.text(summaryLines, margin, y);
+        y += summaryLines.length * 12 + 30;
+
+        // Plaintiff Articles
+        checkPageBreak(40);
+        doc.setFont('Roboto', 'bold');
+        doc.setFontSize(14);
+        doc.text("Για τον Ενάγοντα / Κατήγορο", margin, y);
+        y += 25;
+        result.plaintiffArticles.forEach(renderArticle);
+
+        // Defendant Articles
+        checkPageBreak(40);
+        doc.setFont('Roboto', 'bold');
+        doc.setFontSize(14);
+        doc.text("Για τον Εναγόμενο", margin, y);
+        y += 25;
+        result.defendantArticles.forEach(renderArticle);
+
+        // --- SAVE PDF ---
+        doc.save('ai-νομική-ανάλυση.pdf');
     };
 
     return (

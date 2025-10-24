@@ -5,7 +5,6 @@ const urlsToCacheOnInstall = [
   '/manifest.json',
   'https://i.ibb.co/LXX1fPQR/Generated-Image-September-08-2025-9-16-PM.png',
   'https://cdn.tailwindcss.com',
-  'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js',
   'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',
   'https://cdn.jsdelivr.net/npm/marked/marked.min.js',
   'https://cdn.jsdelivr.net/npm/dompurify@2.4.0/dist/purify.min.js'
