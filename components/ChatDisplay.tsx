@@ -124,16 +124,22 @@ const ChatDisplay: React.FC<ChatDisplayProps> = ({ history, onEdit, onRegenerate
                     Αρχή από την αρχή
                 </button>
              </div>
-            {history.map((msg, index) => (
-                <Message 
-                    key={msg.id}
-                    message={msg}
-                    isLastMessage={index === history.length - 1 && !isLoading}
-                    onEdit={onEdit}
-                    onRegenerate={onRegenerate}
-                />
-            ))}
-            {isLoading && history[history.length-1]?.role !== 'user' && ( // Show loading indicator only when AI is "thinking"
+            {history.map((msg, index) => {
+                const isLastEmptyAiMessageWhileLoading = isLoading && index === history.length - 1 && msg.role === 'ai' && !msg.content;
+                if (isLastEmptyAiMessageWhileLoading) {
+                    return null;
+                }
+                return (
+                    <Message 
+                        key={msg.id}
+                        message={msg}
+                        isLastMessage={index === history.length - 1 && !isLoading}
+                        onEdit={onEdit}
+                        onRegenerate={onRegenerate}
+                    />
+                );
+            })}
+            {isLoading && history[history.length-1]?.role !== 'user' && (
                  <div className="flex items-start gap-3 justify-start animate-slide-up">
                      <div className="flex-shrink-0 w-7 h-7 rounded-full bg-brand-secondary dark:bg-dark-secondary flex items-center justify-center border border-brand-border dark:border-dark-border">
                          <AiIcon className="w-5 h-5 text-brand-text-secondary dark:text-dark-text-secondary"/>

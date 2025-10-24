@@ -380,7 +380,7 @@ const App: React.FC = () => {
       <main className="flex-grow container mx-auto p-4 md:p-6 lg:p-8 w-full max-w-4xl relative">
         {currentView === 'analysis' && (
           <div className={'pb-40'}>
-            {isLoading && !analysisResult && <LoadingSpinner />}
+            {isLoading && !analysisResult && chatHistory.length === 0 && <LoadingSpinner />}
             {error && !isLoading && (
               <div className="bg-accent-red/10 dark:bg-dark-accent-red/10 border border-accent-red/30 dark:border-dark-accent-red/30 text-accent-red dark:text-dark-accent-red px-4 py-3 rounded-lg relative text-center mb-4 animate-fade-in" role="alert">
                 <strong className="font-bold">Σφάλμα: </strong>
